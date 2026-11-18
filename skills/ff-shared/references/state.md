@@ -30,6 +30,7 @@ Créer le dossier annexe au besoin (`mkdir -p`). Ne jamais écrire ces fichiers 
 | `flags` | tableau de flags de `reviewing-code` (`["-a11y","-perf"]`) |
 | `recette_url` | URL de l'environnement déployé |
 | `recette_account` | compte de recette (identifiant, sans mot de passe) |
+| `recette_report` | chemin absolu du rapport `recette-<n>.md` à corriger, posé par la Gate 3 « À reprendre » ; remis à `null` par `ff-implement` une fois transmis à l'agent |
 | `back_ticket` | ticket BACK porteur de la CT (`BACK-456`), `null` sinon |
 | `ct` | `{ source, verdict, fingerprint }` : `source` ∈ `thot`, `notion`, `aucune` ; `verdict` et `fingerprint` décrits dans `ct-read.md` |
 | `notion_url` / `figma_url` | page FEATURE Notion / maquette Figma |
