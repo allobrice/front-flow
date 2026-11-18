@@ -26,11 +26,13 @@ Argument : `<KEY>`. État : `${CLAUDE_PLUGIN_ROOT}/skills/ff-shared/references/s
 ## 2. Attente du déploiement (avant chaque passe)
 
 HEAD doit être poussé (`git push origin <state.branch>` s'il est en avance), puis
-`node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" wait-deploy --sha "$(git rev-parse HEAD)"` :
+`node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" wait-deploy --sha "$(git rev-parse HEAD)" --timeout 540`,
+lancé par l'outil Bash avec `timeout: 600000` (ms) :
 - exit 0 → passe ;
 - exit 2 → `AskUserQuestion` en une ligne : « <recette_url> sert-il le commit <sha court> ? »
   (« Oui, à jour » / « Pas encore ») ; « Pas encore » → `phase` inchangée, arrêt ;
-- exit 1 → citer le message (délai dépassé), `phase` inchangée, arrêt.
+- exit 1 → citer le message, puis `AskUserQuestion` (« Relancer l'attente » / « Confirmer à la
+  main que l'env est à jour » / « Pas maintenant ») ; « Pas maintenant » → `phase` inchangée, arrêt.
 
 ## 3. Passe n
 
@@ -63,16 +65,15 @@ Montrer le dernier rapport, puis la Gate 3, texte et options exacts de `gates.md
 - **Accepté** → `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> phase=done` ;
   `config.jiraTransitions` vrai : Atlassian MCP, `getTransitionsForJiraIssue` puis
   `transitionJiraIssue` vers l'état qui suit la recette (plusieurs candidats : les citer et
-  demander) ; puis la question de suppression du worktree de `gates.md` (checkout principal =
-  parent de `git rev-parse --path-format=absolute --git-common-dir` ; `git -C <checkout principal>
-  worktree remove <worktree>`, puis
-  `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> worktree=null`) ;
+  demander) ; puis la question worktree de `gates.md`. « Supprimer » : `cd` dans le checkout
+  principal (1re entrée `worktree` de `git worktree list --porcelain`), `git worktree remove
+  <worktree>` sans `--force` ; refus (fichiers non commités, ex. `.claude/front-flow.json`) :
+  citer les fichiers restants, le dev décide ; seulement après un retrait réussi, depuis le
+  checkout principal : `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> worktree=null` ;
 - **À reprendre** (ou réponse libre, ajoutée au rapport) →
   `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> 'recette_report=<annexe>/recette-<n>.md' phase=implement` ;
 - **Abandonner** → `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> phase=abandoned`.
 
 Compte rendu : passes faites, messages des commits poussés, chemin du dernier rapport.
 
-## Interdits
-
-- Recetter le serveur local ; merger la PR ; `git push --force`.
+Interdits : recetter le serveur local ; merger la PR ; `git push --force`.

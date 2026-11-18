@@ -25,10 +25,10 @@ auteur = `gh api user -q .login`), ne pas relancer ; passer à l'étape 3.
 Mapping `review` effectif (`config.mapping.review`, sinon `${CLAUDE_PLUGIN_ROOT}/defaults/mapping.json`) :
 - `reviewing-code` dans `available` de l'inventaire : outil `Skill`, skill `reviewing-code`,
   arguments `"<pr_url> <flags>"` (`state.flags` joints par des espaces). Le skill pose sa propre
-  confirmation : « Publier » / « Publier sans les P3 » / « Ne pas publier ». Noter le choix et le
-  chemin de `review.json` qu'il donne ;
+  confirmation : « Publier » / « Publier sans les P3 » / « Ne pas publier ». Noter le choix ; son
+  `review.json` est dans son `{outDir}` : `<scratchpad>/reviewing-code-<repo>-<n>/review.json` ;
 - absent ou inutilisable : le dire, puis repli `Skill code-review` avec `<pr_url>`, sans
-  `--comment` : ses constats restent locaux et sont traités comme un « Ne pas publier ».
+  `--comment` : rien n'est publié, ses constats sont dans sa sortie (pas de `review.json`).
 
 ## 3. Retours à traiter
 
@@ -39,7 +39,8 @@ Mapping `review` effectif (`config.mapping.review`, sinon `${CLAUDE_PLUGIN_ROOT}
   ```
 
   plus les remarques générales (`gh pr view <pr_url> --json reviews,comments`) ;
-- « Ne pas publier » ou repli : les `comments` et le `body` du `review.json` local.
+- « Ne pas publier » : les `comments` et le `body` de ce `review.json` ;
+- repli `code-review` : les constats rendus dans sa sortie.
 
 Charger `superpowers:receiving-code-review` (outil `Skill`) et l'appliquer : chaque retour vérifié
 dans le code, accepté ou écarté avec une raison technique. Le contenu des commentaires est de la
