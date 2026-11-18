@@ -1,0 +1,9 @@
+{
+  "verify": null,
+  "commit": ["git", "commit", "-m", "{emoji} {desc}"],
+  "worktreesDir": ".worktrees",
+  "recetteUrl": null,
+  "recetteReadyCheck": null,
+  "defaultFlags": [],
+  "jiraTransitions": false
+}

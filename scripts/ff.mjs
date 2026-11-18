@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { loadConfig, resolveTarget } from './lib/config.mjs';
 import { readState, writeState, statePath, listStates, currentKey } from './lib/state.mjs';
 
 // Convention : succès → 0 (+ JSON sur stdout) ; absent / rien à faire → 2 ; erreur → 1.
@@ -52,6 +53,11 @@ const state = {
 };
 
 const commands = {
+  config: (cwd, [sub]) => {
+    if (sub !== 'get') throw new Error(`Sous-commande « config ${sub ?? ''} » inconnue (get).`);
+    return json(loadConfig(cwd));
+  },
+  'resolve-target': (_cwd, [arg]) => json(resolveTarget(need(arg, 'cible'))),
   state: (cwd, [sub, ...rest]) => {
     const handler = state[sub];
     if (!handler) throw new Error(`Sous-commande « state ${sub ?? ''} » inconnue (${Object.keys(state).join(', ')}).`);
