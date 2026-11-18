@@ -1,6 +1,6 @@
 ---
 name: ff-review
-description: Phase review de front-flow — lance reviewing-code sur la PR avec les flags de la feature (repli code-review), traite tous les commentaires non résolus de la PR avec receiving-code-review, pousse les correctifs par lot après config.verify, envoie les réponses inline une fois validées par le dev, puis passe en phase recette. Invoquée par l'orchestrateur front-flow quand la phase vaut « review » (« fais la review de WEBFRONT-123 », « traite les retours de la PR »).
+description: Phase review de front-flow — reviewing-code sur la PR, traitement des retours, correctifs et réponses inline validées. Appelée par l'orchestrateur front-flow seulement ; ne pas invoquer directement (passer par front-flow:front-flow).
 user-invocable: false
 ---
 

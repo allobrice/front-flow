@@ -1,6 +1,6 @@
 ---
 name: ff-pr
-description: Phase pr de front-flow — regroupe les changements en commits logiques (fichiers indexés un par un, gabarit config.commit), montre l'aperçu de la PR à la Gate 2 puis pousse la branche et ouvre la PR vers la base ; au retour de recette, commite et pousse sur la PR existante. Invoquée par l'orchestrateur front-flow quand la phase vaut « pr » (« crée la PR de WEBFRONT-123 », « commite et pousse la feature »).
+description: Phase pr de front-flow — commits logiques, Gate 2 (création de PR), push et PR. Appelée par l'orchestrateur front-flow seulement ; ne pas invoquer directement (passer par front-flow:front-flow).
 user-invocable: false
 ---
 

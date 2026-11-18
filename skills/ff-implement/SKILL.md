@@ -1,6 +1,6 @@
 ---
 name: ff-implement
-description: Phase implement de front-flow — confie le plan validé à l'agent d'implémentation du mapping (vue-developer ou son repli) avec brief.md, plan.md et le rapport de recette à corriger, puis lance config.verify jusqu'au vert avant de passer en phase pr. Invoquée par l'orchestrateur front-flow quand la phase vaut « implement » (« implémente WEBFRONT-123 », « reprends après la recette »).
+description: Phase implement de front-flow — dispatch de l'agent d'implémentation du mapping, puis config.verify jusqu'au vert. Appelée par l'orchestrateur front-flow seulement ; ne pas invoquer directement (passer par front-flow:front-flow).
 user-invocable: false
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: ff-plan
-description: Phase plan de front-flow — passe en mode plan, construit le plan d'implémentation à partir de brief.md, le soumet à la Gate 1 (validation du plan) puis passe en phase implement. Invoquée par l'orchestrateur front-flow quand la phase vaut « plan » (« planifie WEBFRONT-123 », « propose le plan de la feature »).
+description: Phase plan de front-flow — plan d'implémentation en mode plan, Gate 1 (validation du plan). Appelée par l'orchestrateur front-flow seulement ; ne pas invoquer directement (passer par front-flow:front-flow).
 user-invocable: false
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: ff-context
-description: Phase context de front-flow — rassemble le ticket Jira, la page FEATURE Notion, la maquette Figma et le contrat d'API back (CT), puis écrit brief.md et passe en phase plan. Invoquée par l'orchestrateur front-flow quand la phase vaut « context » (« prépare le contexte de WEBFRONT-123 », « lis le ticket, la spec et la CT »).
+description: Phase context de front-flow — réunit ticket Jira, page Notion, maquette Figma et CT dans brief.md. Appelée par l'orchestrateur front-flow seulement ; ne pas invoquer directement (passer par front-flow:front-flow).
 user-invocable: false
 ---
 

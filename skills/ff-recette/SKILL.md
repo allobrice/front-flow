@@ -1,6 +1,6 @@
 ---
 name: ff-recette
-description: Phase recette de front-flow — attend le déploiement du SHA poussé, recette l'environnement déployé (recette_url) avec Chrome DevTools MCP critère par critère, relève console et réseau, écrit un rapport P0–P3, corrige les P0–P2 par lot puis repasse, et pose la Gate 3 (verdict de recette). Invoquée par l'orchestrateur front-flow quand la phase vaut « recette » (« recette WEBFRONT-123 », « vérifie la feature sur l'env de recette »).
+description: Phase recette de front-flow — recette de l'env déployé via Chrome DevTools MCP, rapport P0–P3, correctifs par lot, Gate 3 (verdict). Appelée par l'orchestrateur front-flow seulement ; ne pas invoquer directement (passer par front-flow:front-flow).
 user-invocable: false
 ---
 
