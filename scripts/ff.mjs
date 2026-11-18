@@ -2,6 +2,7 @@
 import { loadConfig, resolveTarget } from './lib/config.mjs';
 import { readState, writeState, statePath, listStates, currentKey } from './lib/state.mjs';
 import { detectBase } from './lib/base.mjs';
+import { inventory } from './lib/inventory.mjs';
 
 // Convention : succès → 0 (+ JSON sur stdout) ; absent / rien à faire → 2 ; erreur → 1.
 class Absent extends Error {}
@@ -77,6 +78,7 @@ const commands = {
     const opts = parseOptions(args, ['fix-version', 'start']);
     return `${detectBase(cwd, { fixVersion: opts['fix-version'], start: opts.start })}\n`;
   },
+  inventory: (cwd) => json(inventory(cwd)),
   state: (cwd, [sub, ...rest]) => {
     const handler = state[sub];
     if (!handler) throw new Error(`Sous-commande « state ${sub ?? ''} » inconnue (${Object.keys(state).join(', ')}).`);
