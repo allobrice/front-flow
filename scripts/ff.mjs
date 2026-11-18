@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { loadConfig, resolveTarget } from './lib/config.mjs';
 import { readState, writeState, statePath, listStates, currentKey } from './lib/state.mjs';
+import { detectBase } from './lib/base.mjs';
 
 // Convention : succès → 0 (+ JSON sur stdout) ; absent / rien à faire → 2 ; erreur → 1.
 class Absent extends Error {}
@@ -35,6 +36,20 @@ const need = (v, what) => {
   return v;
 };
 
+/** `--nom valeur …` → { nom: 'valeur' } ; option inconnue ou sans valeur → erreur. */
+function parseOptions(args, known) {
+  const opts = {};
+  for (let i = 0; i < args.length; i += 2) {
+    const flag = args[i] ?? '';
+    const name = flag.replace(/^--/, '');
+    if (!flag.startsWith('--') || !known.includes(name)) {
+      throw new Error(`Option « ${flag} » inconnue (${known.map((k) => `--${k}`).join(', ')}).`);
+    }
+    opts[name] = need(args[i + 1], flag);
+  }
+  return opts;
+}
+
 // Chaque handler reçoit (cwd, args) et renvoie le texte à écrire sur stdout.
 const state = {
   path: (cwd, [key]) => `${statePath(cwd, need(key, 'clé'))}\n`,
@@ -58,6 +73,10 @@ const commands = {
     return json(loadConfig(cwd));
   },
   'resolve-target': (_cwd, [arg]) => json(resolveTarget(need(arg, 'cible'))),
+  'detect-base': (cwd, args) => {
+    const opts = parseOptions(args, ['fix-version', 'start']);
+    return `${detectBase(cwd, { fixVersion: opts['fix-version'], start: opts.start })}\n`;
+  },
   state: (cwd, [sub, ...rest]) => {
     const handler = state[sub];
     if (!handler) throw new Error(`Sous-commande « state ${sub ?? ''} » inconnue (${Object.keys(state).join(', ')}).`);
