@@ -35,8 +35,10 @@ features en cours, la proposition de setup, et le tour de démarrage unique (ét
      (`<key>`, description `<phase> — <branch>`), les plus récentes d'abord, 4 au plus.
 
 Puis `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state get <KEY>` :
-- exit 0 → **reprise** : si `phase` vaut `done` ou `abandoned`, le dire et s'arrêter ; sinon aller
-  à l'étape 2 puis 4 ;
+- exit 0 → **reprise** : si `phase` vaut `done` ou `abandoned`, le dire et s'arrêter ; sinon
+  étape 2, puis relecture de la CT si `ct.source` vaut `thot` et `phase` n'est plus `context`
+  (procédure « Reprise » de `${CLAUDE_PLUGIN_ROOT}/skills/ff-shared/references/ct-read.md`, une
+  fois, après la mise en place de l'étape 4 et avant le premier routage), puis étape 4 ;
 - exit 2 → **nouvelle feature** : étapes 2, 3 puis 4 ;
 - exit 1 → citer le chemin du fichier illisible et s'arrêter, sans rien réécrire.
 
@@ -69,17 +71,22 @@ Garder ce résultat en contexte : les sous-skills y choisissent l'agent ou son r
 
 5. Branche `feature/<KEY>` depuis `origin/<base>` (après `git fetch origin <base>` ; base locale
    seulement si elle n'existe pas sur origin) ; si la branche existe déjà, la réutiliser :
-   - worktree : `git worktree add -b feature/<KEY> <racine>/<worktreesDir>/<KEY> origin/<base>`
+   - worktree : `git worktree add --no-track -b feature/<KEY> <racine>/<worktreesDir>/<KEY> origin/<base>`
      (sans `-b` si la branche existe) ; vérifier que `<worktreesDir>` est ignoré par git, sinon
      le signaler ;
-   - in-place : `git switch -c feature/<KEY> origin/<base>` (ou `git switch feature/<KEY>`).
+   - in-place : `git switch --no-track -c feature/<KEY> origin/<base>` (ou `git switch feature/<KEY>`).
+   `--no-track` : la branche ne suit pas `<base>` (un `git push` nu n'y pousse jamais).
 6. Écrire l'état (valeurs entre guillemets simples, chemin de worktree absolu ou `null`) :
    `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> phase=context branch=feature/<KEY> base=<base> worktree=<chemin|null> 'flags=[…]' recette_url=<url|null> recette_account=<compte|null> notion_url=<url|null>`.
 
 ## 4. Router
 
-Si `state.worktree` est défini, se placer dedans (`cd "<worktree>"`) avant toute autre commande ;
-dossier disparu : le dire et s'arrêter. Toutes les sous-skills travaillent dans ce dossier.
+Mise en place, avant tout routage :
+- `state.worktree` défini : se placer dedans (`cd "<worktree>"`) ; dossier disparu : le dire et
+  s'arrêter. Toutes les sous-skills travaillent dans ce dossier.
+- `state.worktree` nul (in-place) : si `git branch --show-current` ≠ `state.branch`, basculer
+  (`git switch <branch>`) quand l'arbre est propre (`git status --porcelain` vide) ; sinon citer
+  la branche courante et `state.branch`, et s'arrêter sans rien modifier.
 
 | `phase` | Sous-skill (outil `Skill`, argument `<KEY>`) |
 |---|---|

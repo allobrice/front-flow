@@ -62,6 +62,8 @@ donne le même fichier depuis n'importe quel worktree.
 - `done` ou `abandoned` : rien à reprendre ; le dire et s'arrêter.
 - `worktree` défini : travailler dans ce dossier. S'il n'existe plus, le dire (chemin cité) et
   s'arrêter, sans recréer ni modifier l'état.
-- `ct.source` = `thot` : relire la CT avec `--previous` à l'entrée de chaque phase reprise (voir
-  `ct-read.md`).
+- `worktree` nul : la branche courante doit être `branch` ; l'orchestrateur y bascule si l'arbre
+  est propre, sinon il s'arrête.
+- `ct.source` = `thot` et `phase` après `context` : l'orchestrateur relit la CT une fois par
+  reprise, avant de router (procédure « Reprise » de `ct-read.md`).
 - Fichier d'état illisible (exit 1) : citer le chemin et s'arrêter ; ne jamais le réécrire.
