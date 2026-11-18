@@ -32,18 +32,27 @@ Le plan contient :
 - l'agent d'implémentation (premier du mapping ou son repli) et les skills qu'il chargera ;
   un élément absent sans repli est signalé ;
 - les tests à ajouter et la vérification finale (`config.verify`, ou « aucune » si `null`) ;
-- les points ouverts du brief, avec la décision proposée.
+- les points ouverts du brief, avec la décision proposée ;
+- **en dernière étape**, auto-portante pour survivre à un contexte effacé à l'approbation :
+  « Copier ce plan dans `<chemin absolu de l'annexe>/plan.md` ; lancer
+  `node "<chemin absolu de ff.mjs>" state set <KEY> phase=implement` ; puis `/front-flow:front-flow`. »
+  Chemins écrits en clair (`${CLAUDE_PLUGIN_ROOT}` développé), sans variable ni renvoi.
 
 ## 3. Gate 1
 
 La Gate 1 se pose par `ExitPlanMode` avec le plan complet (pas d'`AskUserQuestion`) ; les effets
-suivent `gates.md` :
+suivent `gates.md`. Recommander au dev d'approuver **sans effacer le contexte** ; s'il l'efface,
+la dernière étape du plan fait le travail ci-dessous.
 
-- **Approuvé** (Valider) : écrire le plan approuvé, tel quel, dans `<annexe>/plan.md`, puis
+- **Approuvé** (Valider) : exécuter la dernière étape du plan sauf la relance (l'orchestrateur
+  enchaîne) : plan tel quel dans `<annexe>/plan.md`, puis
   `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> phase=implement`.
 - **Refusé avec commentaire** (Modifier) : rester en mode plan, réviser selon le commentaire et
   représenter par `ExitPlanMode` ; `phase` reste `plan`.
-- **Abandon demandé** par le dev : `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> phase=abandoned`.
+- **Abandon demandé** : rien ne s'écrit en mode plan. Demander au dev d'en sortir (Shift+Tab),
+  puis de confirmer l'abandon ; alors seulement
+  `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> phase=abandoned`. Sans sortie ni
+  confirmation : `phase` reste `plan`, dire pourquoi l'on s'arrête.
 - **Arrêt sans décision** (le dev veut reprendre plus tard) : `phase` reste `plan` ; dire que
   `/front-flow` reprendra au plan.
 

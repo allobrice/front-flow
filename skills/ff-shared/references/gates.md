@@ -10,13 +10,14 @@ commentaire) sans le « oui » correspondant. Une réponse libre (« Autre ») v
 ## Gate 1 — validation du plan (`ff-plan`)
 
 Exception à la forme `AskUserQuestion` : la Gate 1 est l'approbation du plan par `ExitPlanMode`,
-qui présente le plan complet au dev.
+qui présente le plan complet au dev. Le plan se termine par une étape auto-portante (copie de
+`plan.md`, `phase=implement`, relance de `/front-flow:front-flow`) qui survit à un contexte effacé.
 
 | Réponse du dev | Vaut | Effet |
 |---|---|---|
 | Plan approuvé | Valider | plan copié dans `<annexe>/plan.md`, puis `ff state set <KEY> phase=implement` |
 | Rejet avec commentaire | Modifier | on reste en mode plan, le plan est révisé puis représenté par `ExitPlanMode` ; reste en `plan` |
-| Abandon demandé | Abandonner | `ff state set <KEY> phase=abandoned` |
+| Abandon demandé | Abandonner | rien n'est écrit en mode plan : le dev en sort (Shift+Tab) et confirme, puis `ff state set <KEY> phase=abandoned` ; sinon reste en `plan` |
 
 ## Gate 2 — création de la PR (`ff-pr`)
 
@@ -41,7 +42,7 @@ Montrer le dernier rapport (`recette-<n>.md`), puis :
 | Option | Description | Effet |
 |---|---|---|
 | Accepté | « La feature est validée ; fin du déroulé. » | `ff state set <KEY> phase=done` ; transition Jira si `jiraTransitions` ; puis proposer de supprimer le worktree |
-| À reprendre | « Retour en implémentation avec le rapport de recette. » | `ff state set <KEY> 'recette_report=<chemin du recette-<n>.md>' phase=implement` ; `ff-implement` ajoute ce rapport au prompt de l'agent puis efface le champ |
+| À reprendre | « Retour en implémentation avec le rapport de recette. » | `ff state set <KEY> 'recette_report=<chemin du recette-<n>.md>' phase=implement` ; `ff-implement` ajoute ce rapport au prompt de l'agent ; le champ est remis à `null` quand `implement` passe en `pr` |
 | Abandonner | « Arrêter la feature ; l'état est conservé. » | `ff state set <KEY> phase=abandoned` |
 
 Après « Accepté », si `worktree` est défini :
