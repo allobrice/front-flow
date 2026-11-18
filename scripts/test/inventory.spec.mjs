@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, writeFileSync, mkdtempSync, realpathSync } from 'node:fs';
+import { mkdirSync, writeFileSync, symlinkSync, mkdtempSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { parseFrontmatter } from '../lib/frontmatter.mjs';
@@ -113,4 +113,33 @@ test('CLI ff.mjs inventory lit FF_CLAUDE_HOME', () => {
   } finally {
     delete process.env.FF_CLAUDE_HOME;
   }
+});
+
+test('config repo corrompue → erreur avec le chemin (CLI exit 1)', () => {
+  const repo = makeRepo();
+  put(join(repo, '.claude', 'front-flow.json'), '{ pas du json');
+  assert.throws(() => inventory(repo, { claudeHome: tmp() }), /front-flow\.json/);
+  process.env.FF_CLAUDE_HOME = tmp();
+  try {
+    const r = runFF(repo, 'inventory');
+    assert.equal(r.code, 1);
+    assert.match(r.stderr, /front-flow\.json/);
+  } finally {
+    delete process.env.FF_CLAUDE_HOME;
+  }
+});
+
+test('skill et agent installés en lien symbolique sont suivis ; lien cassé ignoré', () => {
+  const home = tmp();
+  const store = tmp();
+  put(join(store, 'real-skill', 'SKILL.md'), '---\nname: linked-skill\n---\n');
+  put(join(store, 'linked-agent.md'), '---\nname: linked-agent\n---\n');
+  mkdirSync(join(home, 'skills'), { recursive: true });
+  mkdirSync(join(home, 'agents'), { recursive: true });
+  symlinkSync(join(store, 'real-skill'), join(home, 'skills', 'linked-skill'));
+  symlinkSync(join(store, 'linked-agent.md'), join(home, 'agents', 'linked-agent.md'));
+  symlinkSync(join(store, 'nope'), join(home, 'skills', 'broken'));
+  symlinkSync(join(store, 'nope.md'), join(home, 'agents', 'broken.md'));
+  const inv = inventory(makeRepo(), { claudeHome: home });
+  assert.deepEqual(inv.available.map((i) => `${i.kind}:${i.id}`), ['agent:linked-agent', 'skill:linked-skill']);
 });

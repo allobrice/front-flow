@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join, basename, dirname } from 'node:path';
 import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -13,6 +13,14 @@ export const defaultClaudeHome = () => process.env.FF_CLAUDE_HOME ?? join(homedi
 const readText = (file) => {
   try {
     return readFileSync(file, 'utf8');
+  } catch {
+    return null;
+  }
+};
+
+const statTarget = (file) => {
+  try {
+    return statSync(file); // suit les liens symboliques ; lien cassé → null
   } catch {
     return null;
   }
@@ -40,10 +48,10 @@ function scanRoot(root, source, prefix) {
     });
   };
   for (const e of entries(join(root, 'agents'))) {
-    if (e.isFile() && e.name.endsWith('.md')) add(join(root, 'agents', e.name), 'agent', basename(e.name, '.md'));
+    if (e.name.endsWith('.md') && statTarget(join(root, 'agents', e.name))?.isFile()) add(join(root, 'agents', e.name), 'agent', basename(e.name, '.md'));
   }
   for (const e of entries(join(root, 'skills'))) {
-    if (e.isDirectory()) add(join(root, 'skills', e.name, 'SKILL.md'), 'skill', e.name);
+    if (statTarget(join(root, 'skills', e.name))?.isDirectory()) add(join(root, 'skills', e.name, 'SKILL.md'), 'skill', e.name);
   }
   return items;
 }
@@ -71,23 +79,22 @@ function pluginRoots(claudeHome) {
   return roots;
 }
 
-function effectiveMapping(cwd) {
+function effectiveMapping(cwd, inRepo) {
   const mapping = JSON.parse(readFileSync(DEFAULT_MAPPING, 'utf8'));
-  try {
-    Object.assign(mapping, loadConfig(cwd).config.mapping ?? {});
-  } catch {
-    // hors dépôt git : mapping par défaut seul
-  }
+  // Hors dépôt git : mapping par défaut seul. Dans un dépôt, une config invalide remonte.
+  if (inRepo) Object.assign(mapping, loadConfig(cwd).config.mapping ?? {});
   return mapping;
 }
 
 export function inventory(cwd, { claudeHome = defaultClaudeHome() } = {}) {
   const found = [...scanRoot(claudeHome, 'user', null)];
+  let top = null;
   try {
-    found.push(...scanRoot(join(git(cwd, 'rev-parse', '--show-toplevel'), '.claude'), 'repo', null));
+    top = git(cwd, 'rev-parse', '--show-toplevel');
   } catch {
     // hors dépôt git : sources repo ignorées
   }
+  if (top) found.push(...scanRoot(join(top, '.claude'), 'repo', null));
   for (const { root, plugin } of pluginRoots(claudeHome)) found.push(...scanRoot(root, 'plugin', plugin));
 
   const byId = (a, b) => a.id.localeCompare(b.id);
@@ -98,7 +105,7 @@ export function inventory(cwd, { claudeHome = defaultClaudeHome() } = {}) {
   // Un repli sans préfixe (« code-review ») désigne aussi un item de plugin « <plugin>:code-review ».
   const hasFallback = (id) => has(id) || (!id.includes(':') && available.some((i) => i.source === 'plugin' && i.id.endsWith(`:${id}`)));
   const missing = [];
-  for (const [phase, list] of Object.entries(effectiveMapping(cwd))) {
+  for (const [phase, list] of Object.entries(effectiveMapping(cwd, top !== null))) {
     for (const { id, fallback = null } of list) {
       if (has(id)) continue;
       missing.push({ id, phase, fallback, fallbackAvailable: fallback !== null && hasFallback(fallback) });
