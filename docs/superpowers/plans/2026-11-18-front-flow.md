@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Zéro dépendance npm ; pas de `package.json` obligatoire. Tests : `node --test scripts/test/`.
+- Zéro dépendance npm ; pas de `package.json` obligatoire. Tests : `node --test 'scripts/test/*.spec.mjs'`.
 - Aucune commande externe via un shell : toujours `execFileSync(cmd, argv)` (jamais `exec`, jamais d'interpolation dans une chaîne de commande).
 - État : `$(git rev-parse --path-format=absolute --git-common-dir)/front-flow/<KEY>.json` ; dossier annexe `…/front-flow/<KEY>/` (`brief.md`, `ct-bundle.json`). Jamais dans le working tree.
 - Phases (enum exact) : `context`, `plan`, `implement`, `pr`, `review`, `recette`, `done`, `abandoned`.
@@ -93,7 +93,7 @@ exit 1 + message en français sur stderr.
   - `current` : branche `feature/WEBFRONT-2-truc` → `WEBFRONT-2` ; branche `develop` → code 2.
 - [ ] **Step 2: Run** `node --test scripts/test/state.spec.mjs` → FAIL (module absent).
 - [ ] **Step 3: Implement** `lib/git.mjs`, `lib/state.mjs`, dispatch dans `ff.mjs`. `plugin.json` : `{"name":"front-flow","version":"0.1.0","description":"Déroule une feature front AlloVoisins de bout en bout : contexte et CT, plan, implémentation, PR, review, recette.","author":{"name":"Brice Le Gallo-Tastet"}}`. `marketplace.json` : `{"name":"front-flow-local","owner":{"name":"Brice"},"plugins":[{"name":"front-flow","source":"./","description":"…"}]}`.
-- [ ] **Step 4: Run** `node --test scripts/test/` → PASS.
+- [ ] **Step 4: Run** `node --test 'scripts/test/*.spec.mjs'` → PASS.
 - [ ] **Step 5: Commit** `✨ ff.mjs : état et squelette du plugin`.
 
 ### Task 2: Config et résolution de cible
@@ -117,7 +117,7 @@ exit 1 + message en français sur stderr.
   - `resolveTarget("WEBFRONT-123")` → key `WEBFRONT-123` ; `"https://allovoisins.atlassian.net/browse/WEBFRONT-45"` → key + jiraUrl ; `"…/jira/software/projects/WEBFRONT/boards/1?selectedIssue=WEBFRONT-46"` → key `WEBFRONT-46` ; `"https://www.notion.so/allovoisins/Feature-abc123"` → key `null`, notionUrl ; `"n'importe quoi"` → exit 1.
 - [ ] **Step 2: Run** → FAIL.
 - [ ] **Step 3: Implement** `lib/config.mjs` + dispatch.
-- [ ] **Step 4: Run** `node --test scripts/test/` → PASS.
+- [ ] **Step 4: Run** `node --test 'scripts/test/*.spec.mjs'` → PASS.
 - [ ] **Step 5: Commit** `✨ ff.mjs : config par repo et résolution de cible`.
 
 ### Task 3: Branche de base
@@ -218,7 +218,7 @@ Contenu imposé :
 - `ff-implement` : dispatch de l'agent `mapping.implement[0]` (ou son repli) avec `brief.md` + `plan.md` et la consigne de charger les skills du mapping ; puis `config.verify` jusqu'au vert (3 tentatives max, sinon s'arrêter et montrer l'erreur) ; `state set phase=pr`. Retour depuis la recette (« À reprendre ») : le rapport de recette est ajouté au prompt.
 
 - [ ] **Step 1: Write** les 3 SKILL.md (le contenu en prose n'a pas de test d'échec préalable ; `skills.spec.mjs` vérifie la structure).
-- [ ] **Step 2: Run** `node --test scripts/test/` → PASS.
+- [ ] **Step 2: Run** `node --test 'scripts/test/*.spec.mjs'` → PASS.
 - [ ] **Step 3: Commit** `✨ skills : phases context, plan, implement`.
 
 ### Task 8: Phases pr, review, recette
@@ -232,7 +232,7 @@ Contenu imposé :
 - `ff-recette` : URL = `state.recette_url` (env déployé) ; avant chaque passe : `ff.mjs wait-deploy --sha $(git rev-parse HEAD)` (exit 2 → demander au dev de confirmer en une ligne) ; Chrome DevTools MCP : connexion avec `recette_account`, chaque critère de `brief.md` vérifié, console et réseau relevés ; skills de `mapping.recette` selon les flags ; rapport P0–P3 dans `…/<KEY>/recette-<n>.md` ; correctifs P0–P2 par lot → `verify` → commit → push → nouvelle passe ; **Gate 3** selon `references/gates.md` ; transitions Jira si activées.
 
 - [ ] **Step 1: Write** les 3 SKILL.md.
-- [ ] **Step 2: Run** `node --test scripts/test/` → PASS.
+- [ ] **Step 2: Run** `node --test 'scripts/test/*.spec.mjs'` → PASS.
 - [ ] **Step 3: Commit** `✨ skills : phases pr, review, recette`.
 
 ### Task 9: Validation et rodage
@@ -241,7 +241,7 @@ Contenu imposé :
 - Create: `README.md` (installation, `/front-flow:setup`, usage, prérequis : retirer `disable-model-invocation` de `reviewing-code`), `docs/rodage.md`
 
 - [ ] **Step 1:** `claude plugin validate ~/dev/front-flow` → aucune erreur.
-- [ ] **Step 2:** `node --test scripts/test/` → tout PASS.
+- [ ] **Step 2:** `node --test 'scripts/test/*.spec.mjs'` → tout PASS.
 - [ ] **Step 3:** Installation locale : `/plugin marketplace add ~/dev/front-flow` puis `/plugin install front-flow@front-flow-local` ; vérifier que `/front-flow:front-flow` et `/front-flow:setup` apparaissent et que les `ff-*` n'apparaissent pas dans le menu.
 - [ ] **Step 4:** Smoke test dans ILokYou-Site : `node ~/dev/front-flow/scripts/ff.mjs inventory` et `config get` → sorties cohérentes avec l'inventaire réel (reviewing-code signalé inutilisable tant que le flag est présent).
 - [ ] **Step 5:** Audit `claude-plugin-auditor` sur le plugin ; corriger les P0/P1.
