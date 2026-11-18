@@ -44,7 +44,8 @@ Puis `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state get <KEY>` :
 
 ## 2. Inventaire (démarrage et reprise)
 
-`node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" inventory` → `{ available, unusable, missing }`.
+`node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" inventory` → JSON compact `{ available, unusable, missing }` ;
+`available` ne garde que les ids du mapping effectif et leurs replis (liste complète : `--all`).
 Afficher au plus deux lignes, sans bloquer :
 - `Inutilisables (disable-model-invocation) : <id>, <id>` si `unusable` n'est pas vide ;
 - `Absents : <id> (repli <fallback> disponible | sans repli), …` si `missing` n'est pas vide.

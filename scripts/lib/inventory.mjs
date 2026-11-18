@@ -86,7 +86,11 @@ function effectiveMapping(cwd, inRepo) {
   return mapping;
 }
 
-export function inventory(cwd, { claudeHome = defaultClaudeHome() } = {}) {
+/**
+ * `available` est limité aux ids du mapping effectif et à leurs replis, sauf avec `all` (liste
+ * complète). `unusable` et `missing` ne dépendent pas de `all`.
+ */
+export function inventory(cwd, { claudeHome = defaultClaudeHome(), all = false } = {}) {
   const found = [...scanRoot(claudeHome, 'user', null)];
   let top = null;
   try {
@@ -101,15 +105,19 @@ export function inventory(cwd, { claudeHome = defaultClaudeHome() } = {}) {
   const available = found.filter((f) => !f.disabled).map((f) => f.item).sort(byId);
   const unusable = found.filter((f) => f.disabled).map((f) => f.item).sort(byId);
 
-  const has = (id) => available.some((i) => i.id === id);
   // Un repli sans préfixe (« code-review ») désigne aussi un item de plugin « <plugin>:code-review ».
-  const hasFallback = (id) => has(id) || (!id.includes(':') && available.some((i) => i.source === 'plugin' && i.id.endsWith(`:${id}`)));
+  const matchesFallback = (item, id) => item.id === id || (!id.includes(':') && item.source === 'plugin' && item.id.endsWith(`:${id}`));
+  const has = (id) => available.some((i) => i.id === id);
+  const hasFallback = (id) => available.some((i) => matchesFallback(i, id));
+  const effective = effectiveMapping(cwd, top !== null);
+  const mapping = Object.values(effective).flat();
   const missing = [];
-  for (const [phase, list] of Object.entries(effectiveMapping(cwd, top !== null))) {
+  for (const [phase, list] of Object.entries(effective)) {
     for (const { id, fallback = null } of list) {
       if (has(id)) continue;
       missing.push({ id, phase, fallback, fallbackAvailable: fallback !== null && hasFallback(fallback) });
     }
   }
-  return { available, unusable, missing };
+  const relevant = (item) => mapping.some(({ id, fallback = null }) => item.id === id || (fallback !== null && matchesFallback(item, fallback)));
+  return { available: all ? available : available.filter(relevant), unusable, missing };
 }

@@ -80,7 +80,10 @@ const commands = {
     const opts = parseOptions(args, ['fix-version', 'start']);
     return `${detectBase(cwd, { fixVersion: opts['fix-version'], start: opts.start })}\n`;
   },
-  inventory: (cwd) => json(inventory(cwd)),
+  inventory: (cwd, args) => {
+    if (args.some((a) => a !== '--all')) throw new Error(`Option « ${args.find((a) => a !== '--all')} » inconnue (--all).`);
+    return `${JSON.stringify(inventory(cwd, { all: args.includes('--all') }))}\n`; // compact : lu à chaque démarrage
+  },
   commit: (cwd, args) => {
     const opts = parseOptions(args, ['emoji', 'files', 'desc']);
     const sha = runCommit(cwd, { emoji: need(opts.emoji, '--emoji'), files: need(opts.files, '--files'), desc: need(opts.desc, '--desc') });

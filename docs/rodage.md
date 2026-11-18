@@ -9,8 +9,9 @@ relever chaque friction dans la grille en fin de document. Installation : voir `
 - `/plugin marketplace add ~/dev/front-flow`, `/plugin install front-flow@front-flow-local`,
   puis vérifier que le menu montre `/front-flow:front-flow` et `/front-flow:setup`, et aucun `ff-*`.
 - `gh auth status` ; MCP Atlassian, Notion, Chrome DevTools connectés.
-- Smoke test du 2026-11-18 dans ILokYou-Site (lecture seule) : `inventory` → 152 disponibles,
-  6 inutilisables (aucun du mapping), 0 absent ; `reviewing-code`, `vue-developer`,
+- Smoke test du 2026-11-18 dans ILokYou-Site (lecture seule) : `inventory --all` → 152
+  disponibles (16 retenus par défaut : mapping et replis), 6 inutilisables (aucun du mapping),
+  0 absent ; `reviewing-code`, `vue-developer`,
   `writing-clean-code`, `thot:thot-read`, `web-front:figma-analyzer` et
   `web-front:type-generator` disponibles ; `config get` → défauts, `configured: false` ;
   `state list` → `[]` ; `detect-base` → branche de départ.
@@ -75,7 +76,8 @@ Reliquats mineurs reportés pendant l'implémentation, utiles en conditions rée
 - **État** : valeurs de `state set` pas toujours entre guillemets dans les gabarits (espaces,
   `recette_account` purement numérique converti en nombre) ; messages git bruts (en anglais) hors
   dépôt ; fichier `.tmp` laissé après une écriture interrompue.
-- **Inventaire** : sortie volumineuse (~4 000 tok) lancée au démarrage et parfois deux fois ;
+- **Inventaire** : lancé parfois deux fois ; un repli sans préfixe (`code-review`) est aussi
+  satisfait par un item d'un autre type (agent `web-front:code-review`) ;
   commentaires YAML en fin de ligne dans un frontmatter mal lus ; `installed_plugins.json`
   invalide ignoré sans avertissement.
 - **Chemins** : `${CLAUDE_PLUGIN_ROOT}` des références n'est pas développé ; repérer toute
@@ -103,5 +105,5 @@ Gravité : P0 bloque le déroulé · P1 contournement manuel lourd · P2 gêne �
 | | | | | | |
 
 Bilan à tirer après les deux rodages : frictions P0/P1 corrigées avant publication, décision sur
-la sortie de l'inventaire (audit #7), sur la délégation de la recette à un agent (audit #5) et sur
+la délégation de la recette à un agent (audit #5) et sur
 l'embarquement ou non des skills perso pour l'équipe.

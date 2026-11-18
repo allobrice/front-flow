@@ -46,7 +46,8 @@ Le fichier est versionnable : ne jamais y mettre de mot de passe ni de jeton.
 
 ## 4. Inventaire
 
-`node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" inventory` → `{ available, unusable, missing }`.
+`node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" inventory --all` → JSON compact `{ available, unusable, missing }`
+(`available` complet).
 Rendre un court bilan :
 - `unusable` : skills marquées `disable-model-invocation: true` (front-flow ne peut pas les
   appeler ; retirer cette ligne de leur frontmatter) ;

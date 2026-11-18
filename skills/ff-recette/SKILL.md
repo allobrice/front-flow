@@ -36,8 +36,9 @@ lancé par l'outil Bash avec `timeout: 600000` (ms) :
 
 ## 3. Passe n
 
-`n` = 1 + le plus grand numéro des `<annexe>/recette-*.md` existants. Outils
-`mcp__plugin_chrome-devtools-mcp_chrome-devtools__*` :
+`n` = 1 + le plus grand numéro des `<annexe>/recette-*.md` existants. Outils du MCP Chrome
+DevTools, quel que soit leur préfixe (`navigate_page`, `take_snapshot`, `fill`, `click`,
+`list_console_messages`, `list_network_requests`) :
 1. `navigate_page` sur `recette_url` ; `state.recette_account` défini et session non connectée :
    remplir l'identifiant (`fill`, `click`) ; le mot de passe est saisi par le dev dans le
    navigateur, jamais écrit dans l'état ni le rapport.

@@ -88,7 +88,7 @@ test('sources repo, tri par id, mapping du repo remplaçant une phase', () => {
   const repo = makeRepo();
   put(join(repo, '.claude', 'agents', 'alpha.md'), '---\ndescription: x\n---\n');
   put(join(repo, '.claude', 'front-flow.json'), JSON.stringify({ mapping: { review: [{ id: 'custom-review', kind: 'skill', fallback: null }] } }));
-  const inv = inventory(repo, { claudeHome: home });
+  const inv = inventory(repo, { claudeHome: home, all: true });
   assert.deepEqual(inv.available.map((i) => `${i.id}:${i.source}`), ['alpha:repo', 'zeta:user']);
   assert.ok(inv.missing.some((m) => m.id === 'custom-review' && m.phase === 'review'));
   assert.ok(!inv.missing.some((m) => m.id === 'reviewing-code'));
@@ -98,7 +98,7 @@ test('sources repo, tri par id, mapping du repo remplaçant une phase', () => {
 test('hors dépôt git : fonctionne (sources repo ignorées)', () => {
   const home = tmp();
   skill(home, 'zeta', 'name: zeta');
-  const inv = inventory(tmp(), { claudeHome: home });
+  const inv = inventory(tmp(), { claudeHome: home, all: true });
   assert.deepEqual(inv.available.map((i) => i.id), ['zeta']);
 });
 
@@ -107,7 +107,7 @@ test('CLI ff.mjs inventory lit FF_CLAUDE_HOME', () => {
   skill(home, 'zeta', 'name: zeta');
   process.env.FF_CLAUDE_HOME = home;
   try {
-    const r = runFF(makeRepo(), 'inventory');
+    const r = runFF(makeRepo(), 'inventory', '--all');
     assert.equal(r.code, 0, r.stderr);
     assert.deepEqual(JSON.parse(r.stdout).available.map((i) => i.id), ['zeta']);
   } finally {
@@ -140,6 +140,55 @@ test('skill et agent installés en lien symbolique sont suivis ; lien cassé ign
   symlinkSync(join(store, 'linked-agent.md'), join(home, 'agents', 'linked-agent.md'));
   symlinkSync(join(store, 'nope'), join(home, 'skills', 'broken'));
   symlinkSync(join(store, 'nope.md'), join(home, 'agents', 'broken.md'));
-  const inv = inventory(makeRepo(), { claudeHome: home });
+  const inv = inventory(makeRepo(), { claudeHome: home, all: true });
   assert.deepEqual(inv.available.map((i) => `${i.kind}:${i.id}`), ['agent:linked-agent', 'skill:linked-skill']);
+});
+
+/** Poste fictif : items du mapping, repli de plugin, repli sans préfixe, items hors mapping. */
+function mixedHome() {
+  const home = tmp();
+  skill(home, 'zeta', 'name: zeta');
+  skill(home, 'writing-clean-code', 'name: writing-clean-code');
+  skill(home, 'zz-off', 'name: zz-off\ndisable-model-invocation: true');
+  const webFront = tmp();
+  put(join(webFront, 'agents', 'vue-developer.md'), '---\nname: vue-developer\n---\n');
+  put(join(webFront, 'agents', 'other.md'), '---\nname: other\n---\n');
+  const codeReview = tmp();
+  put(join(codeReview, 'skills', 'code-review', 'SKILL.md'), '---\nname: code-review\n---\n');
+  put(
+    join(home, 'plugins', 'installed_plugins.json'),
+    JSON.stringify({ version: 2, plugins: { 'web-front@m': [{ installPath: webFront }], 'code-review@m': [{ installPath: codeReview }] } }),
+  );
+  return home;
+}
+
+test('par défaut : available limité aux ids du mapping et à leurs replis ; unusable et missing inchangés', () => {
+  const home = mixedHome();
+  const repo = makeRepo();
+  const inv = inventory(repo, { claudeHome: home });
+  const all = inventory(repo, { claudeHome: home, all: true });
+  assert.deepEqual(inv.available.map((i) => i.id), ['code-review:code-review', 'web-front:vue-developer', 'writing-clean-code']);
+  assert.deepEqual(inv.unusable, all.unusable);
+  assert.deepEqual(inv.unusable.map((i) => i.id), ['zz-off']);
+  assert.deepEqual(inv.missing, all.missing);
+  assert.deepEqual(all.available.map((i) => i.id), ['code-review:code-review', 'web-front:other', 'web-front:vue-developer', 'writing-clean-code', 'zeta']);
+});
+
+test('CLI : JSON compact sur une ligne, filtré par défaut, complet avec --all', () => {
+  process.env.FF_CLAUDE_HOME = mixedHome();
+  try {
+    const repo = makeRepo();
+    const def = runFF(repo, 'inventory');
+    const full = runFF(repo, 'inventory', '--all');
+    for (const r of [def, full]) {
+      assert.equal(r.code, 0, r.stderr);
+      assert.equal(r.stdout.trimEnd().split('\n').length, 1);
+      assert.ok(!r.stdout.includes('  '), 'pas d\'indentation');
+    }
+    assert.ok(!JSON.parse(def.stdout).available.some((i) => i.id === 'zeta'));
+    assert.ok(JSON.parse(full.stdout).available.some((i) => i.id === 'zeta'));
+    assert.notEqual(runFF(repo, 'inventory', '--tout').code, 0);
+  } finally {
+    delete process.env.FF_CLAUDE_HOME;
+  }
 });

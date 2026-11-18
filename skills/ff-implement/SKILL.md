@@ -22,7 +22,9 @@ config : `${CLAUDE_PLUGIN_ROOT}/skills/ff-shared/references/config.md`.
 ## 2. Agent et skills
 
 Mapping `implement` effectif : `config.mapping.implement`, sinon la liste `implement` de
-`${CLAUDE_PLUGIN_ROOT}/defaults/mapping.json`. Avec l'inventaire de l'orchestrateur :
+`${CLAUDE_PLUGIN_ROOT}/defaults/mapping.json`. Avec l'inventaire de l'orchestrateur (sinon
+`node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" inventory`, sans `--all` : `available` y contient
+les ids du mapping et leurs replis) :
 - agent = premier élément (`implement[0]`) s'il est dans `available`, sinon son `fallback` si
   `fallbackAvailable` ; aucun des deux → le dire (id et repli cités), `phase` inchangée, arrêt ;
 - skills = les éléments `kind: "skill"` du mapping disponibles (id ou repli) ; les absents sont
