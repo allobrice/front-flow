@@ -16,7 +16,7 @@ chaînes (chemin du fichier cité).
 | Clé | Type | Rôle | Défaut |
 |---|---|---|---|
 | `verify` | chaîne ou `null` | commande lancée (outil Bash, depuis la racine du worktree) jusqu'au vert après chaque lot de modifications | `null` : aucune vérification ; le signaler |
-| `commit` | tableau argv non vide de chaînes | gabarit de commit lancé sans shell par `ff.mjs commit` ; jetons `{emoji}`, `{files}`, `{desc}` | `["git","commit","-m","{emoji} {desc}"]` |
+| `commit` | tableau argv non vide de chaînes | gabarit de commit lancé sans shell par `ff.mjs commit` ; jetons `{emoji}`, `{files}`, `{desc}`, `{KEY}` (clé en majuscules), `{key}` (minuscules) — les deux derniers exigent `--key` | `["git","commit","-m","{emoji} {desc}"]` |
 | `worktreesDir` | chaîne | dossier des worktrees, **relatif** et à l'intérieur du dépôt (ni chemin absolu ni `..`) ; worktree = `<root>/<worktreesDir>/<KEY>` | `".worktrees"` |
 | `branch` | chaîne | gabarit de la branche de travail ; jetons `{KEY}` (clé en majuscules), `{key}` (minuscules), `{slug}` (3 mots du résumé Jira, sans accents ni mots vides) ; `{KEY}` ou `{key}` obligatoire | `"feature/{KEY}"` |
 | `recetteUrl` | chaîne ou `null` | URL de l'environnement de recette déployé ; jeton `{branchSlug}` = dernier segment de la branche en minuscules, tronqué à 63 caractères | `null` |
@@ -27,7 +27,9 @@ chaînes (chemin du fichier cité).
 
 ## Commandes liées
 
-- `ff.mjs commit --emoji <e> --files <f> --desc <d>` : remplit le gabarit, commite **l'index
+- `ff.mjs commit --key <KEY> --emoji <e> --files <f> --desc <d>` : remplit le gabarit ; `--key`
+  est obligatoire si le gabarit utilise `{KEY}` ou `{key}` (exit 1 sinon, jamais de valeur vide),
+  et toujours passé par les sous-skills ; commite **l'index
   tel quel** (le script ne fait jamais `git add` : indexer d'abord, fichier par fichier, jamais
   `git add -A`) ; sortie `{ "sha": "<court>" }`, exit 1 avec l'erreur du gabarit sinon. Les
   valeurs passent telles quelles en argv (guillemets, `$(…)`, accents sans risque). `{files}` est
@@ -47,7 +49,7 @@ ILokYou-Site :
 ```json
 {
   "verify": "scripts/verify.sh",
-  "commit": ["node", "scripts/commit.mjs", "-e", "{emoji}", "-f", "{files}", "-d", "{desc}"],
+  "commit": ["node", "scripts/commit.mjs", "-e", "{emoji}", "-t", "{KEY}", "-f", "{files}", "-d", "{desc}"],
   "worktreesDir": ".worktrees",
   "branch": "feature/{key}-{slug}",
   "recetteUrl": "https://{branchSlug}.feature.allovoisins.com",

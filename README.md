@@ -41,7 +41,8 @@ phase (`ff-*`) sont internes.
 
 Dans le dépôt cible : `/front-flow:setup`. La skill détecte la commande de vérification
 (`scripts/verify.sh`, sinon `lint` / `typecheck` / `test` de `package.json`) et le gabarit de
-commit (`scripts/commit.mjs` s'il existe), montre le JSON proposé et n'écrit
+commit (`scripts/commit.mjs` s'il existe ; jetons `{emoji}`, `{files}`, `{desc}`, et `{KEY}` /
+`{key}` pour la clé du ticket), montre le JSON proposé et n'écrit
 `.claude/front-flow.json` qu'avec ton accord, toujours à la racine du checkout principal (même
 lancé depuis un worktree ; `config get` en donne le chemin dans `root`). `worktreesDir` reste un
 chemin relatif, à l'intérieur du dépôt (`.worktrees` par défaut, ignoré par git). Ce fichier est versionnable : ses commandes

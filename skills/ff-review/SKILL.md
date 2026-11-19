@@ -52,7 +52,7 @@ Appliquer les retours acceptés, puis `config.verify` depuis le dossier de trava
 signaler et continuer). Rouge : corriger et relancer, 3 tentatives au plus ; encore rouge →
 montrer l'erreur, `phase` inchangée, arrêt. Vert : un commit par lot, sans gate :
 `git add -- <fichiers>` (jamais `git add -A`), puis
-`node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" commit --emoji "<gitmoji>" --files "<composants>" --desc "<description>"`,
+`node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" commit --key <KEY> --emoji "<gitmoji>" --files "<composants>" --desc "<description>"`,
 puis `git push origin <state.branch>`.
 
 ## 5. Réponses inline (retours publiés seulement)

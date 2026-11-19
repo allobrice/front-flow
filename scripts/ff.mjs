@@ -91,8 +91,8 @@ const commands = {
     return `${JSON.stringify(inventory(cwd, { all: args.includes('--all') }))}\n`; // compact : lu à chaque démarrage
   },
   commit: (cwd, args) => {
-    const opts = parseOptions(args, ['emoji', 'files', 'desc']);
-    const sha = runCommit(cwd, { emoji: need(opts.emoji, '--emoji'), files: need(opts.files, '--files'), desc: need(opts.desc, '--desc') });
+    const opts = parseOptions(args, ['emoji', 'files', 'desc', 'key']);
+    const sha = runCommit(cwd, { emoji: need(opts.emoji, '--emoji'), files: need(opts.files, '--files'), desc: need(opts.desc, '--desc'), key: opts.key ?? null });
     return json({ sha });
   },
   'wait-deploy': async (cwd, args) => {

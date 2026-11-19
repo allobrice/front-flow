@@ -58,7 +58,7 @@ sorties des audits. Montrer la synthèse au dev.
 Constats P0–P2 : les corriger tous en un lot (agent `implement` du mapping ou correction directe),
 `config.verify` jusqu'au vert (3 tentatives au plus, sinon erreur montrée, `phase` inchangée,
 arrêt), `git add -- <fichiers>` (jamais `git add -A`), un seul
-`node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" commit --emoji "<gitmoji>" --files "<composants>" --desc "<description>"`,
+`node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" commit --key <KEY> --emoji "<gitmoji>" --files "<composants>" --desc "<description>"`,
 `git push origin <state.branch>`, puis nouvelle passe (étape 2). Au plus 3 passes ; au-delà, ou
 sans P0–P2, aller à la Gate 3.
 
