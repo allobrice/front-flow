@@ -34,6 +34,7 @@ Créer le dossier annexe au besoin (`mkdir -p`). Ne jamais écrire ces fichiers 
 | `back_ticket` | ticket BACK porteur de la CT (`BACK-456`), `null` sinon |
 | `ct` | `{ source, verdict, fingerprint }` : `source` ∈ `thot`, `notion`, `aucune` ; `verdict` et `fingerprint` décrits dans `ct-read.md` |
 | `notion_url` / `figma_url` | page FEATURE Notion / maquette Figma |
+| `jira_url` | URL du ticket Jira, posée par l'orchestrateur (`jiraUrl` de `resolve-target`, sinon `https://<site>/browse/<KEY>` d'après `getJiraIssue`) ; lien Jira du corps de PR |
 | `updated_at` | horodatage ISO ; posé par le script à chaque écriture |
 
 Phases, dans l'ordre : `context` → `plan` → `implement` → `pr` → `review` → `recette` → `done`.
@@ -45,14 +46,15 @@ Phases, dans l'ordre : `context` → `plan` → `implement` → `pr` → `review
 |---|---|---|
 | `ff state path <KEY>` | chemin, texte brut | 0 ; 1 si clé invalide |
 | `ff state get <KEY>` | état JSON | 0 ; 2 si absent ; 1 si le fichier est illisible (le chemin est cité, le fichier n'est pas touché) |
-| `ff state set <KEY> k=v…` | état complet JSON après écriture | 0 ; 1 si argument ou phase invalide |
+| `ff state set <KEY> 'k=v'…` | état complet JSON après écriture | 0 ; 1 si argument ou phase invalide |
 | `ff state list` | tableau JSON des features en cours (`phase` ≠ `done`/`abandoned`), la plus récente d'abord : `{ key, phase, branch, worktree, updated_at }` | 0 (tableau vide possible) |
 | `ff state current` | clé tirée de la branche courante (`[A-Z]{2,}-\d+`), texte brut | 0 ; 2 si la branche n'en porte pas |
 
 `state set` : chaque valeur est lue comme du JSON si possible, sinon comme une chaîne
-(`worktree=null` → `null`, `flags='["-a11y"]'` → tableau). Une clé pointée écrit un sous-champ
-(`ct.verdict=engagé`) ; les objets sont fusionnés, les tableaux et scalaires remplacés. Entourer
-chaque paire de guillemets simples. L'écriture est atomique (fichier temporaire puis renommage) et
+(`'worktree=null'` → `null`, `'flags=["-a11y"]'` → tableau). Une clé pointée écrit un sous-champ
+(`'ct.verdict=engagé'`) ; les objets sont fusionnés, les tableaux et scalaires remplacés. Entourer
+chaque paire de guillemets simples (`'notion_url=https://…?v=1'`) : sous zsh, un `?` ou un `*`
+non cité fait échouer la commande (« no matches found »). L'écriture est atomique (fichier temporaire puis renommage) et
 donne le même fichier depuis n'importe quel worktree.
 
 ## Règles de reprise

@@ -1,24 +1,27 @@
 # Config par dépôt
 
-Fichier `.claude/front-flow.json` à la racine du dépôt, fusionné en profondeur avec les défauts du
-plugin (`defaults/config.json`) : les objets se fusionnent, les tableaux et scalaires du dépôt
-remplacent ceux des défauts.
+Fichier `.claude/front-flow.json` à la racine du **checkout principal** du dépôt (même lancé
+depuis un worktree : la config y est souvent ignorée par git), fusionné en profondeur avec les
+défauts du plugin (`defaults/config.json`) : les objets se fusionnent, les tableaux et scalaires
+du dépôt remplacent ceux des défauts.
 
-Lecture : `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" config get` → `{ "config": {…}, "configured": true|false }`
-(exit 0). `configured: false` : pas de fichier, défauts seuls ; proposer `/front-flow:setup`.
-Exit 1 : hors dépôt git, ou fichier JSON invalide (chemin cité).
+Lecture : `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" config get` → `{ "config": {…}, "configured": true|false, "root": "<checkout principal>" }`
+(exit 0). `root` : où lire et écrire `.claude/front-flow.json` et où créer les worktrees.
+`configured: false` : pas de fichier, défauts seuls ; proposer `/front-flow:setup`.
+Exit 1 : hors dépôt git, fichier JSON invalide, ou `commit` qui n'est pas un tableau non vide de
+chaînes (chemin du fichier cité).
 
 ## Clés
 
 | Clé | Type | Rôle | Défaut |
 |---|---|---|---|
 | `verify` | chaîne ou `null` | commande lancée (outil Bash, depuis la racine du worktree) jusqu'au vert après chaque lot de modifications | `null` : aucune vérification ; le signaler |
-| `commit` | tableau argv | gabarit de commit lancé sans shell par `ff.mjs commit` ; jetons `{emoji}`, `{files}`, `{desc}` | `["git","commit","-m","{emoji} {desc}"]` |
-| `worktreesDir` | chaîne | dossier des worktrees, relatif à la racine du dépôt ; worktree = `<worktreesDir>/<KEY>` | `".worktrees"` |
+| `commit` | tableau argv non vide de chaînes | gabarit de commit lancé sans shell par `ff.mjs commit` ; jetons `{emoji}`, `{files}`, `{desc}` | `["git","commit","-m","{emoji} {desc}"]` |
+| `worktreesDir` | chaîne | dossier des worktrees, **relatif** et à l'intérieur du dépôt (ni chemin absolu ni `..`) ; worktree = `<root>/<worktreesDir>/<KEY>` | `".worktrees"` |
 | `recetteUrl` | chaîne ou `null` | URL par défaut de l'environnement de recette déployé | `null` |
 | `recetteReadyCheck` | `{ "url": … }` ou `null` | URL qui expose le SHA déployé ; `ff.mjs wait-deploy` l'interroge jusqu'à y trouver les 7 premiers caractères du SHA poussé | `null` : le dev confirme en une ligne que l'env est à jour |
 | `defaultFlags` | tableau | flags de `reviewing-code` proposés au démarrage (`-seo`, `-perf`, `-archi`, `-a11y`) | `[]` |
-| `jiraTransitions` | booléen | proposer les transitions Jira (PR créée, recette acceptée) | `false` |
+| `jiraTransitions` | booléen | transitions Jira (« En relecture » à la création de PR, l'état qui suit la recette à « Accepté ») : nommées dans la gate concernée, appliquées après accord à la gate | `false` |
 | `mapping` | objet, facultatif | remplace, phase par phase, la liste d'agents/skills de `defaults/mapping.json` : `{ "<phase>": [{ "id", "kind": "agent"\|"skill", "fallback" }] }` | absent |
 
 ## Commandes liées

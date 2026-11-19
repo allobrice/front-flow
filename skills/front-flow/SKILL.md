@@ -25,9 +25,12 @@ features en cours, la proposition de setup, et le tour de démarrage unique (ét
   propriété Jira (URL `…/browse/WEBFRONT-123`). Introuvable : demander la clé au dev.
 - Exit 1 (cible non reconnue) : citer le message, demander une cible.
 
-**Sans argument** :
-1. `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state current` : exit 0 → cette clé.
-2. Exit 2 → `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state list` :
+**Sans argument** (jamais de nouvelle feature : seulement une reprise) :
+1. `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state current` : exit 0 → clé de la branche ;
+   la garder seulement si `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state get <KEY>` sort en
+   exit 0 (exit 1 : citer le chemin, s'arrêter). Exit 2 de l'un ou l'autre (branche sans clé, ou
+   clé sans état) → pas de feature courante, point 2.
+2. `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state list` :
    - `[]` : écrire « Aucune feature en cours : donne un ticket (WEBFRONT-123, URL Jira ou URL
      Notion). » et s'arrêter ;
    - une seule : la prendre ;
@@ -39,7 +42,7 @@ Puis `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state get <KEY>` :
   étape 2, puis relecture de la CT si `ct.source` vaut `thot` et `phase` n'est plus `context`
   (procédure « Reprise » de `${CLAUDE_PLUGIN_ROOT}/skills/ff-shared/references/ct-read.md`, une
   fois, après la mise en place de l'étape 4 et avant le premier routage), puis étape 4 ;
-- exit 2 → **nouvelle feature** : étapes 2, 3 puis 4 ;
+- exit 2 → **nouvelle feature** (avec argument seulement) : étapes 2, 3 puis 4 ;
 - exit 1 → citer le chemin du fichier illisible et s'arrêter, sans rien réécrire.
 
 ## 2. Inventaire (démarrage et reprise)
@@ -54,10 +57,12 @@ Garder ce résultat en contexte : les sous-skills y choisissent l'agent ou son r
 
 ## 3. Nouvelle feature : un seul tour de questions
 
-1. `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" config get`. `configured: false` → proposer
+1. `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" config get` ; `root` = `<racine>`, le checkout
+   principal (même depuis un worktree), où vit la config. `configured: false` → proposer
    `/front-flow:setup` (`AskUserQuestion` : « Lancer le setup » / « Continuer avec les défauts ») ;
    « Lancer le setup » → skill `front-flow:setup` (outil `Skill`), puis relire la config. Détail des clés : `${CLAUDE_PLUGIN_ROOT}/skills/ff-shared/references/config.md`.
 2. Ticket Jira (Atlassian MCP, `getJiraIssue`) : résumé, `fixVersions`, lien Notion éventuel.
+   `<jira_url>` = `jiraUrl` de `resolve-target`, sinon `https://<site>/browse/<KEY>` (site du ticket lu).
 3. Base : `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" detect-base --fix-version "<fixVersion>"`
    (sans fixVersion : `detect-base` seul) → texte brut, `release/<v>` ou la branche de départ.
 4. **Un seul** `AskUserQuestion`, quatre questions au plus, chaque première option étant la
@@ -70,15 +75,19 @@ Garder ce résultat en contexte : les sous-skills y choisissent l'agent ou son r
 | Flags | « Flags de review ? » (multiSelect) | `<defaultFlags ou aucun> (détecté)` ; `-a11y` ; `-perf` ; `-seo` |
 | Recette | « URL et compte de recette ? » | `<recetteUrl> (détecté)` (sinon `Plus tard (détecté)`) ; `Plus tard` — URL et compte saisis via « Autre » |
 
-5. Branche `feature/<KEY>` depuis `origin/<base>` (après `git fetch origin <base>` ; base locale
-   seulement si elle n'existe pas sur origin) ; si la branche existe déjà, la réutiliser :
-   - worktree : `git worktree add --no-track -b feature/<KEY> <racine>/<worktreesDir>/<KEY> origin/<base>`
+5. `git fetch origin <base>` : base absente d'origin (échec, ou base seulement locale) → dire
+   « La base <base> n'existe pas sur origin : la PR ne pourrait pas être créée ; pousse-la ou
+   choisis une autre base. » et s'arrêter, sans rien écrire. Puis branche `feature/<KEY>` depuis
+   `origin/<base>` ; si la branche existe déjà, la réutiliser :
+   - worktree, dans `<racine>/<worktreesDir>/<KEY>` : chemin déjà existant → le dire (chemin
+     cité) et s'arrêter ; sinon, depuis `<racine>` :
+     `git worktree add --no-track -b feature/<KEY> <racine>/<worktreesDir>/<KEY> origin/<base>`
      (sans `-b` si la branche existe) ; vérifier que `<worktreesDir>` est ignoré par git, sinon
      le signaler ;
    - in-place : `git switch --no-track -c feature/<KEY> origin/<base>` (ou `git switch feature/<KEY>`).
    `--no-track` : la branche ne suit pas `<base>` (un `git push` nu n'y pousse jamais).
-6. Écrire l'état (valeurs entre guillemets simples, chemin de worktree absolu ou `null`) :
-   `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> phase=context branch=feature/<KEY> base=<base> worktree=<chemin|null> 'flags=[…]' recette_url=<url|null> recette_account=<compte|null> notion_url=<url|null>`.
+6. Écrire l'état (chaque paire entre guillemets simples, chemin de worktree absolu ou `null`) :
+   `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> 'phase=context' 'branch=feature/<KEY>' 'base=<base>' 'worktree=<chemin|null>' 'flags=[…]' 'recette_url=<url|null>' 'recette_account=<compte|null>' 'notion_url=<url|null>' 'jira_url=<jira_url>'`.
 
 ## 4. Router
 

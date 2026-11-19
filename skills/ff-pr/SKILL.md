@@ -35,23 +35,25 @@ Commits de la feature : `git log --format='%h %s' origin/<state.base>..HEAD`. Au
 
 La PR existe : pas de Gate 2 (elle ne couvre que la création). Après l'étape 2 :
 `git push origin <state.branch>` (échec : citer, arrêt), lister les commits poussés, puis
-`node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> phase=recette`. Fin de la skill.
+`node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> 'phase=recette'`. Fin de la skill.
 
 ## 4. Aperçu et Gate 2 (première passe)
 
 - Titre : `<KEY> : <résumé du ticket>`.
 - Corps, écrit dans `<annexe>/pr-body.md` (hors working tree) :
-  - **Contexte** : lien Jira (`https://…/browse/<KEY>`), page Notion (`state.notion_url`),
+  - **Contexte** : lien Jira (`state.jira_url` ; nul : la clé seule), page Notion (`state.notion_url`),
     maquette (`state.figma_url`) s'ils existent ;
   - **Changements** : une puce par commit, en langage fonctionnel ;
   - **Critères d'acceptation** : la liste numérotée de `brief.md`, en cases à cocher ;
   - **CT** : `state.back_ticket` et `ct.verdict` (`ct.source` = `notion` : lien de la page) ;
     verdict `brouillon` → « à revalider avant merge » ; `aucune` → « UI seule ».
-- Montrer base, titre, corps et commits (`<sha> <message>`), puis la Gate 2, texte et options
-  exacts de `gates.md` :
+- Montrer base, titre, corps et commits (`<sha> <message>`) ; `config.jiraTransitions` vrai :
+  ajouter la ligne « Transition Jira → En relecture ». Puis la Gate 2, texte et options exacts de
+  `gates.md` :
   - **Créer la PR** → étape 5 ;
   - **Modifier** (ou réponse libre) → appliquer la demande (nouvelle base : `node
-    "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> base=<base>`), réécrire `pr-body.md`,
+    "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> 'base=<base>'`, base présente sur
+    origin), réécrire `pr-body.md`,
     représenter l'aperçu ;
   - **Pas maintenant** → rien n'est publié, `phase` reste `pr`, arrêt.
 
@@ -61,9 +63,10 @@ La PR existe : pas de Gate 2 (elle ne couvre que la création). Après l'étape 
 2. `gh pr create --base <state.base> --head <state.branch> --title "<titre>" --body-file "<annexe>/pr-body.md"`
    → URL sur stdout. PR déjà ouverte pour la branche (phase relancée) : reprendre son URL avec
    `gh pr view <state.branch> --json url -q .url`, sans en créer d'autre.
-3. `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> 'pr_url=<url>' phase=review`.
-4. `config.jiraTransitions` vrai : Atlassian MCP, `getTransitionsForJiraIssue` puis
-   `transitionJiraIssue` vers « En relecture » ; transition introuvable : le dire, sans bloquer.
+3. `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> 'pr_url=<url>' 'phase=review'`.
+4. `config.jiraTransitions` vrai (transition annoncée dans l'aperçu, acceptée avec « Créer la
+   PR ») : Atlassian MCP, `getTransitionsForJiraIssue` puis `transitionJiraIssue` vers « En
+   relecture » ; transition introuvable : le dire, sans bloquer.
 
 Compte rendu : URL de la PR, commits poussés, fichiers laissés hors commit.
 

@@ -8,8 +8,9 @@ front-flow ne rédige ni ne versionne la CT : il la lit et décide s'il code con
    `ff.mjs state set <KEY> 'ct.source=notion' 'ct.verdict=null' 'ct.fingerprint=null'`. Pas de Thot.
 2. **Sinon, Thot** : ticket BACK tiré des liens du ticket Jira ou de la propriété « Jira Back » de
    la page Notion ; sinon le demander au dev. Le ranger dans `back_ticket`.
-3. **Aucun ticket BACK** (le dev le confirme) : `ct.source=aucune` ; `AskUserQuestion` :
-   « UI seule » / « Arrêter ».
+3. **Aucun ticket BACK** (le dev le confirme) :
+   `ff.mjs state set <KEY> 'ct.source=aucune' 'ct.verdict=null' 'ct.fingerprint=null'` ;
+   `AskUserQuestion` : « UI seule » / « Arrêter ».
 
 ## Appel
 

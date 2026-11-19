@@ -39,9 +39,11 @@ lancé par l'outil Bash avec `timeout: 600000` (ms) :
 `n` = 1 + le plus grand numéro des `<annexe>/recette-*.md` existants. Outils du MCP Chrome
 DevTools, quel que soit leur préfixe (`navigate_page`, `take_snapshot`, `fill`, `click`,
 `list_console_messages`, `list_network_requests`) :
-1. `navigate_page` sur `recette_url` ; `state.recette_account` défini et session non connectée :
-   remplir l'identifiant (`fill`, `click`) ; le mot de passe est saisi par le dev dans le
-   navigateur, jamais écrit dans l'état ni le rapport.
+1. `navigate_page` sur `recette_url`. Session non connectée et `state.recette_account` défini :
+   `fill` de l'identifiant, puis `AskUserQuestion` « Connecte-toi dans le navigateur, puis
+   confirme » (« Connecté » / « Pas maintenant ») ; « Connecté » → `take_snapshot` pour vérifier
+   la session ; « Pas maintenant » → `phase` inchangée, arrêt. Le mot de passe est saisi par le
+   dev, jamais écrit dans l'état ni le rapport.
 2. Pour chaque critère du brief : parcours (`navigate_page`, `take_snapshot`, `fill`, `click`),
    résultat OK / KO avec la preuve observée.
 3. `list_console_messages` (erreurs, avertissements) et `list_network_requests` (4xx, 5xx, échecs).
@@ -62,18 +64,16 @@ sans P0–P2, aller à la Gate 3.
 
 ## 5. Gate 3
 
-Montrer le dernier rapport, puis la Gate 3, texte et options exacts de `gates.md` :
-- **Accepté** → `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> phase=done` ;
-  `config.jiraTransitions` vrai : Atlassian MCP, `getTransitionsForJiraIssue` puis
-  `transitionJiraIssue` vers l'état qui suit la recette (plusieurs candidats : les citer et
-  demander) ; puis la question worktree de `gates.md`. « Supprimer » : `cd` dans le checkout
-  principal (1re entrée `worktree` de `git worktree list --porcelain`), `git worktree remove
-  <worktree>` sans `--force` ; refus (fichiers non commités, ex. `.claude/front-flow.json`) :
-  citer les fichiers restants, le dev décide ; seulement après un retrait réussi, depuis le
-  checkout principal : `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> worktree=null` ;
+`config.jiraTransitions` vrai : `getTransitionsForJiraIssue` (Atlassian MCP) avant la gate, pour
+nommer la transition qui suit la recette (plusieurs candidats : les citer et demander). Montrer
+le dernier rapport, puis la Gate 3, texte et options exacts de `gates.md` (description
+d'« Accepté » suffixée « Transition Jira → <nom> » le cas échéant) :
+- **Accepté** → `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> 'phase=done'` ;
+  transition nommée appliquée (`transitionJiraIssue`) ; puis « Suppression du worktree » de `gates.md` ;
 - **À reprendre** (ou réponse libre, ajoutée au rapport) →
-  `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> 'recette_report=<annexe>/recette-<n>.md' phase=implement` ;
-- **Abandonner** → `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> phase=abandoned`.
+  `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> 'recette_report=<annexe>/recette-<n>.md' 'phase=implement'` ;
+- **Abandonner** → `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> 'phase=abandoned'` ;
+  puis « Suppression du worktree » de `gates.md`.
 
 Compte rendu : passes faites, messages des commits poussés, chemin du dernier rapport.
 

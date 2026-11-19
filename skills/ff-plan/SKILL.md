@@ -26,32 +26,34 @@ Gate 1 : `${CLAUDE_PLUGIN_ROOT}/skills/ff-shared/references/gates.md`.
 composables, stores, styles et tests touchés ; conventions existantes à suivre.
 
 Le plan contient :
+- **en première étape**, auto-portante pour survivre à un contexte effacé à l'approbation,
+  formulée comme une instruction : « Avant tout : copier ce plan dans
+  `<chemin absolu de l'annexe>/plan.md`, lancer
+  `node "<chemin absolu de ff.mjs>" state set <KEY> 'phase=implement'`, puis invoquer
+  `/front-flow:front-flow` ; ne pas implémenter soi-même. » Chemins écrits en clair
+  (`${CLAUDE_PLUGIN_ROOT}` développé), sans variable ni renvoi ;
 - le rappel du ticket et du verdict CT (avec « à revalider avant merge » s'il figure au brief) ;
 - les étapes, fichier par fichier, dans l'ordre d'exécution ;
 - pour chaque critère d'acceptation numéroté du brief, l'étape qui le couvre ;
 - l'agent d'implémentation (premier du mapping ou son repli) et les skills qu'il chargera ;
   un élément absent sans repli est signalé ;
 - les tests à ajouter et la vérification finale (`config.verify`, ou « aucune » si `null`) ;
-- les points ouverts du brief, avec la décision proposée ;
-- **en dernière étape**, auto-portante pour survivre à un contexte effacé à l'approbation :
-  « Copier ce plan dans `<chemin absolu de l'annexe>/plan.md` ; lancer
-  `node "<chemin absolu de ff.mjs>" state set <KEY> phase=implement` ; puis `/front-flow:front-flow`. »
-  Chemins écrits en clair (`${CLAUDE_PLUGIN_ROOT}` développé), sans variable ni renvoi.
+- les points ouverts du brief, avec la décision proposée.
 
 ## 3. Gate 1
 
 La Gate 1 se pose par `ExitPlanMode` avec le plan complet (pas d'`AskUserQuestion`) ; les effets
 suivent `gates.md`. Recommander au dev d'approuver **sans effacer le contexte** ; s'il l'efface,
-la dernière étape du plan fait le travail ci-dessous.
+la première étape du plan fait le travail ci-dessous.
 
-- **Approuvé** (Valider) : exécuter la dernière étape du plan sauf la relance (l'orchestrateur
+- **Approuvé** (Valider) : exécuter la première étape du plan sauf la relance (l'orchestrateur
   enchaîne) : plan tel quel dans `<annexe>/plan.md`, puis
-  `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> phase=implement`.
+  `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> 'phase=implement'`.
 - **Refusé avec commentaire** (Modifier) : rester en mode plan, réviser selon le commentaire et
   représenter par `ExitPlanMode` ; `phase` reste `plan`.
 - **Abandon demandé** : rien ne s'écrit en mode plan. Demander au dev d'en sortir (Shift+Tab),
   puis de confirmer l'abandon ; alors seulement
-  `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> phase=abandoned`. Sans sortie ni
+  `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> 'phase=abandoned'`. Sans sortie ni
   confirmation : `phase` reste `plan`, dire pourquoi l'on s'arrête.
 - **Arrêt sans décision** (le dev veut reprendre plus tard) : `phase` reste `plan` ; dire que
   `/front-flow` reprendra au plan.

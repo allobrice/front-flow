@@ -70,7 +70,7 @@ Un P0 ou P1 corrigé : `AskUserQuestion` « Relancer reviewing-code sur la PR ? 
 contrôle de review existante). Sinon, pas de nouvelle passe.
 
 Compte rendu : choix de publication, retours acceptés ou écartés, messages des commits poussés,
-réponses envoyées. Puis `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> phase=recette`.
+réponses envoyées. Puis `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> 'phase=recette'`.
 
 ## Interdits
 
