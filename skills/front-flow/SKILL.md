@@ -65,29 +65,31 @@ Garder ce résultat en contexte : les sous-skills y choisissent l'agent ou son r
    `<jira_url>` = `jiraUrl` de `resolve-target`, sinon `https://<site>/browse/<KEY>` (site du ticket lu).
 3. Base : `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" detect-base --fix-version "<fixVersion>"`
    (sans fixVersion : `detect-base` seul) → texte brut, `release/<v>` ou la branche de départ.
+   Noms : `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" names <KEY> --title "<résumé Jira>"` →
+   `{ branch, recetteUrl }` (gabarits `branch` et `recetteUrl` de la config) ; `<branche>` = `branch`.
 4. **Un seul** `AskUserQuestion`, quatre questions au plus, chaque première option étant la
    valeur détectée suffixée « (détecté) » :
 
 | En-tête | Question | Options |
 |---|---|---|
 | Base | « Branche cible de la PR ? » | `<base> (détecté)` ; `develop` |
-| Mode | « Où travailler ? » | `Worktree (détecté)` (`<worktreesDir>/<KEY>`) ; `In-place` (checkout courant) |
+| Mode | « Où travailler, sur la branche <branche> ? » | `Worktree (détecté)` (`<worktreesDir>/<KEY>`) ; `In-place` (checkout courant) — autre nom de branche via « Autre » (worktree), puis `names <KEY> --branch "<nom>"` pour l'URL |
 | Flags | « Flags de review ? » (multiSelect) | `<defaultFlags ou aucun> (détecté)` ; `-a11y` ; `-perf` ; `-seo` |
-| Recette | « URL et compte de recette ? » | `<recetteUrl> (détecté)` (sinon `Plus tard (détecté)`) ; `Plus tard` — URL et compte saisis via « Autre » |
+| Recette | « URL et compte de recette ? » | `<recetteUrl de names> (détecté)` (sinon `Plus tard (détecté)`) ; `Plus tard` — URL et compte saisis via « Autre » |
 
 5. `git fetch origin <base>` : base absente d'origin (échec, ou base seulement locale) → dire
    « La base <base> n'existe pas sur origin : la PR ne pourrait pas être créée ; pousse-la ou
-   choisis une autre base. » et s'arrêter, sans rien écrire. Puis branche `feature/<KEY>` depuis
+   choisis une autre base. » et s'arrêter, sans rien écrire. Puis branche `<branche>` depuis
    `origin/<base>` ; si la branche existe déjà, la réutiliser :
    - worktree, dans `<racine>/<worktreesDir>/<KEY>` : chemin déjà existant → le dire (chemin
      cité) et s'arrêter ; sinon, depuis `<racine>` :
-     `git worktree add --no-track -b feature/<KEY> <racine>/<worktreesDir>/<KEY> origin/<base>`
+     `git worktree add --no-track -b <branche> <racine>/<worktreesDir>/<KEY> origin/<base>`
      (sans `-b` si la branche existe) ; vérifier que `<worktreesDir>` est ignoré par git, sinon
      le signaler ;
-   - in-place : `git switch --no-track -c feature/<KEY> origin/<base>` (ou `git switch feature/<KEY>`).
+   - in-place : `git switch --no-track -c <branche> origin/<base>` (ou `git switch <branche>`).
    `--no-track` : la branche ne suit pas `<base>` (un `git push` nu n'y pousse jamais).
 6. Écrire l'état (chaque paire entre guillemets simples, chemin de worktree absolu ou `null`) :
-   `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> 'phase=context' 'branch=feature/<KEY>' 'base=<base>' 'worktree=<chemin|null>' 'flags=[…]' 'recette_url=<url|null>' 'recette_account=<compte|null>' 'notion_url=<url|null>' 'jira_url=<jira_url>'`.
+   `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> 'phase=context' 'branch=<branche>' 'base=<base>' 'worktree=<chemin|null>' 'flags=[…]' 'recette_url=<url|null>' 'recette_account=<compte|null>' 'notion_url=<url|null>' 'jira_url=<jira_url>'`.
 
 ## 4. Router
 

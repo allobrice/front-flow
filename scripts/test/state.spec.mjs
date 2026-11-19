@@ -89,3 +89,18 @@ test('current', () => {
   assert.equal(r.code, 0);
   assert.equal(r.stdout.trim(), 'WEBFRONT-2');
 });
+
+test('current : branche en minuscules avec état → clé en majuscules', () => {
+  const repo = makeRepo();
+  assert.equal(runFF(repo, 'state', 'set', 'WEBFRONT-1404', 'phase=context').code, 0);
+  git(repo, 'checkout', '-q', '-b', 'feature/webfront-1404-onglet-page-introuvable');
+  const r = runFF(repo, 'state', 'current');
+  assert.equal(r.code, 0, r.stderr);
+  assert.equal(r.stdout.trim(), 'WEBFRONT-1404');
+});
+
+test('current : minuscules sans état → pas de fausse clé (lot-1, back-1249)', () => {
+  const repo = makeRepo();
+  git(repo, 'checkout', '-q', '-b', 'feature/refonte-avis-lot-1-back-1249');
+  assert.equal(runFF(repo, 'state', 'current').code, 2);
+});

@@ -67,7 +67,15 @@ export function listStates(cwd) {
   return out.sort((a, b) => String(b.updated_at).localeCompare(String(a.updated_at)));
 }
 
-/** Clé de ticket déduite de la branche courante, ou null. */
+/**
+ * Clé de ticket déduite de la branche courante, ou null. Casse indifférente
+ * (`feature/webfront-1404-…` → `WEBFRONT-1404`) : la première clé candidate qui a un état
+ * l'emporte ; sans état, seule une clé écrite en majuscules dans la branche est retenue, pour ne
+ * pas prendre `lot-1` de `feature/refonte-avis-lot-1-back-1249` pour une clé.
+ */
 export function currentKey(cwd) {
-  return currentBranch(cwd).match(/[A-Z]{2,}-\d+/)?.[0] ?? null;
+  const found = [...currentBranch(cwd).matchAll(/(?<![A-Za-z])[A-Za-z]{2,}-\d+/g)].map((m) => m[0]);
+  const withState = found.find((k) => existsSync(statePath(cwd, k.toUpperCase())));
+  if (withState) return withState.toUpperCase();
+  return found.find((k) => /^[A-Z]{2,}-\d+$/.test(k)) ?? null;
 }

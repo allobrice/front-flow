@@ -25,12 +25,13 @@ Produire `.claude/front-flow.json` à la racine du checkout principal du dépôt
 | aucun des deux | `verify: null`, en le signalant |
 | `scripts/commit.mjs` présent | `commit: ["node","scripts/commit.mjs","-e","{emoji}","-f","{files}","-d","{desc}"]` |
 | sinon | `commit` par défaut : `["git","commit","-m","{emoji} {desc}"]` |
+| workflow `.github/workflows/*.yml` déclenché par un push sur `feature/*` (env par branche) | `recetteReadyCheck: { "workflow": "<fichier>" }` ; demander au dev la convention de branche (`branch`, ex. `feature/{key}-{slug}`) et l'URL de l'env (`recetteUrl` avec `{branchSlug}`) |
 
 Toujours proposer `worktreesDir: ".worktrees"` (chemin relatif, à l'intérieur du dépôt). Garder les défauts pour `recetteUrl`,
 `recetteReadyCheck`, `defaultFlags` et `jiraTransitions`, sauf indication du dev.
 
 Pour ILokYou-Site, le résultat attendu est :
-`{ "verify": "scripts/verify.sh", "commit": ["node","scripts/commit.mjs","-e","{emoji}","-f","{files}","-d","{desc}"], "worktreesDir": ".worktrees" }`.
+`{ "verify": "scripts/verify.sh", "commit": ["node","scripts/commit.mjs","-e","{emoji}","-f","{files}","-d","{desc}"], "worktreesDir": ".worktrees", "branch": "feature/{key}-{slug}", "recetteUrl": "https://{branchSlug}.feature.allovoisins.com", "recetteReadyCheck": { "workflow": "deploy-features.yml" } }`.
 
 ## 3. Proposer et écrire
 

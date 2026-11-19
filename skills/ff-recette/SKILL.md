@@ -29,7 +29,7 @@ HEAD doit être poussé (`git push origin <state.branch>` s'il est en avance), p
 `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" wait-deploy --sha "$(git rev-parse HEAD)" --timeout 540`,
 lancé par l'outil Bash avec `timeout: 600000` (ms) :
 - exit 0 → passe ;
-- exit 2 → `AskUserQuestion` en une ligne : « <recette_url> sert-il le commit <sha court> ? »
+- exit 2 (pas de check, ou aucun run pour ce commit) → `AskUserQuestion` en une ligne : « <recette_url> sert-il le commit <sha court> ? »
   (« Oui, à jour » / « Pas encore ») ; « Pas encore » → `phase` inchangée, arrêt ;
 - exit 1 → citer le message, puis `AskUserQuestion` (« Relancer l'attente » / « Confirmer à la
   main que l'env est à jour » / « Pas maintenant ») ; « Pas maintenant » → `phase` inchangée, arrêt.

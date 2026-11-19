@@ -55,7 +55,7 @@ transition qui suit la recette et l'ajouter à la description d'« Accepté » (
 
 Seulement si `worktree` est défini :
 
-> **Question** : « Supprimer le worktree <worktree> ? La branche feature/<KEY> est conservée. »
+> **Question** : « Supprimer le worktree <worktree> ? La branche <branch> est conservée. »
 > En-tête : `Worktree`
 > Options : « Supprimer » ; « Garder ».
 
