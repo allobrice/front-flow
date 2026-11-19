@@ -107,4 +107,30 @@ Gravité : P0 bloque le déroulé · P1 contournement manuel lourd · P2 gêne �
 
 Bilan à tirer après les deux rodages : frictions P0/P1 corrigées avant publication, décision sur
 la délégation de la recette à un agent (audit #5) et sur
-l'embarquement ou non des skills perso pour l'équipe.
+la publication de `frontend-toolkit` dans `allovoisins-cc-tools` (dépendance cross-marketplace).
+
+## Pistes à étudier après le rodage
+
+### Suivi en direct du traitement d'un ticket (idée du 2026-11-19)
+
+Voir ce qui se joue pendant le déroulé d'une feature, à trois niveaux, du plus léger au plus complet :
+
+1. **Ligne d'état Claude Code** : `ff.mjs status` lit la feature en cours (`state current`) et
+   rend `WEBFRONT-123 · review · PR #456 · base release/2.14` sous la saisie. Coût : quelques
+   lignes.
+2. **Tableau de bord local** : `ff.mjs dashboard` sert une page sur `localhost` (Node sans
+   dépendance) qui suit `git-common-dir/front-flow/` : features en cours, frise des six phases,
+   gates en attente ou passées, verdict CT, lien de PR, retours de review traités, rapport de
+   recette P0–P3. Rien ne sort de la machine.
+3. **Page claude.ai partageable** : même contenu, publiée en page privée dont front-flow
+   alimente la base à chaque étape ; un PO ou un collègue suit la feature sans terminal.
+   L'avancement sort de la machine : publication soumise à accord.
+
+Prérequis commun : un **journal d'événements** à côté de l'état (`<KEY>/events.jsonl`), car
+l'état ne bouge qu'aux changements de phase. Deux sources possibles : une commande `ff.mjs log`
+appelée par chaque sous-skill (journal propre, à maintenir) ou des hooks Claude Code sur les
+appels d'outils (exhaustif, plus bruyant).
+
+Ordre proposé : ligne d'état et journal d'abord (utiles aussi pour diagnostiquer les rodages),
+tableau de bord local si le besoin se confirme, page partageable seulement quand d'autres
+personnes doivent suivre.
