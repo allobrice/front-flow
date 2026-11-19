@@ -27,7 +27,7 @@ Choisir un ticket court (une page ou un composant, CT simple ou UI seule) avec u
 déployable.
 
 1. **Setup** : `/front-flow:setup`. Attendu : `verify: "scripts/verify.sh"`, `commit` =
-   `node scripts/commit.mjs -e {emoji} -f {files} -d {desc}`, `worktreesDir: ".worktrees"` (déjà
+   `node scripts/commit.mjs -e {emoji} -t {KEY} -f {files} -d {desc}`, `worktreesDir: ".worktrees"` (déjà
    ignoré par git). Ajouter l'URL de recette si elle est stable. Lancé depuis un worktree, le
    fichier doit être écrit dans le checkout principal (`root` de `config get`).
 2. **Démarrage** : `/front-flow:front-flow WEBFRONT-xxx`. Vérifier : un seul tour de questions

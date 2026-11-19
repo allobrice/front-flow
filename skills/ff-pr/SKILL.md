@@ -22,7 +22,7 @@ Argument : `<KEY>`. État : `${CLAUDE_PLUGIN_ROOT}/skills/ff-shared/references/s
 `git status --porcelain` : regrouper les fichiers modifiés en changements logiques (un composant
 et son test, un style, une traduction…). Pour chaque groupe :
 1. `git add -- <fichier> <fichier>…` : chemins explicites, jamais `git add -A` ni `git add .` ;
-2. `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" commit --emoji "<gitmoji>" --files "<composants>" --desc "<description en français>"`
+2. `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" commit --key <KEY> --emoji "<gitmoji>" --files "<composants>" --desc "<description en français>"`
    → `{ "sha" }`. Exit 1 : citer l'erreur du gabarit, `phase` inchangée, arrêt.
 
 Ne pas commiter ce qui n'appartient pas à la feature (`.claude/front-flow.json` écrit pendant le

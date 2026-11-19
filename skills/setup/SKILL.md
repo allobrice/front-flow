@@ -23,7 +23,7 @@ Produire `.claude/front-flow.json` à la racine du checkout principal du dépôt
 | `scripts/verify.sh` présent | `verify: "scripts/verify.sh"` |
 | sinon, scripts `lint`, `typecheck`, `test` de `package.json` | `verify` = ceux présents, dans cet ordre, joints par ` && ` (`npm run lint && npm run typecheck && npm run test` ; gestionnaire déduit du lockfile : `pnpm-lock.yaml` → `pnpm`, `yarn.lock` → `yarn`, sinon `npm`) |
 | aucun des deux | `verify: null`, en le signalant |
-| `scripts/commit.mjs` présent | `commit: ["node","scripts/commit.mjs","-e","{emoji}","-f","{files}","-d","{desc}"]` |
+| `scripts/commit.mjs` présent | `commit: ["node","scripts/commit.mjs","-e","{emoji}","-t","{KEY}","-f","{files}","-d","{desc}"]` (`-t` : la zone du message ne dépend pas de la casse de la branche) |
 | sinon | `commit` par défaut : `["git","commit","-m","{emoji} {desc}"]` |
 | workflow `.github/workflows/*.yml` déclenché par un push sur `feature/*` (env par branche) | `recetteReadyCheck: { "workflow": "<fichier>" }` ; demander au dev la convention de branche (`branch`, ex. `feature/{key}-{slug}`) et l'URL de l'env (`recetteUrl` avec `{branchSlug}`) |
 
@@ -31,7 +31,7 @@ Toujours proposer `worktreesDir: ".worktrees"` (chemin relatif, à l'intérieur 
 `recetteReadyCheck`, `defaultFlags` et `jiraTransitions`, sauf indication du dev.
 
 Pour ILokYou-Site, le résultat attendu est :
-`{ "verify": "scripts/verify.sh", "commit": ["node","scripts/commit.mjs","-e","{emoji}","-f","{files}","-d","{desc}"], "worktreesDir": ".worktrees", "branch": "feature/{key}-{slug}", "recetteUrl": "https://{branchSlug}.feature.allovoisins.com", "recetteReadyCheck": { "workflow": "deploy-features.yml" } }`.
+`{ "verify": "scripts/verify.sh", "commit": ["node","scripts/commit.mjs","-e","{emoji}","-t","{KEY}","-f","{files}","-d","{desc}"], "worktreesDir": ".worktrees", "branch": "feature/{key}-{slug}", "recetteUrl": "https://{branchSlug}.feature.allovoisins.com", "recetteReadyCheck": { "workflow": "deploy-features.yml" } }`.
 
 ## 3. Proposer et écrire
 
