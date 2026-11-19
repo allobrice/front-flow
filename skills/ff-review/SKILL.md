@@ -23,11 +23,11 @@ Phase relancée : si la PR porte déjà une review du dev (`gh pr view <pr_url> 
 auteur = `gh api user -q .login`), ne pas relancer ; passer à l'étape 3.
 
 Mapping `review` effectif (`config.mapping.review`, sinon `${CLAUDE_PLUGIN_ROOT}/defaults/mapping.json`) :
-- `reviewing-code` dans `available` de l'inventaire : outil `Skill`, skill `reviewing-code`,
-  arguments `"<pr_url> <flags>"` (`state.flags` joints par des espaces). Le skill pose sa propre
+- `review[0].id` (par défaut `frontend-toolkit:reviewing-code`) dans `available` de
+  l'inventaire : outil `Skill`, skill `review[0].id`, arguments `"<pr_url> <flags>"` (`state.flags` joints par des espaces). Le skill pose sa propre
   confirmation : « Publier » / « Publier sans les P3 » / « Ne pas publier ». Noter le choix ; son
   `review.json` est dans son `{outDir}` : `<scratchpad>/reviewing-code-<repo>-<n>/review.json` ;
-- absent ou inutilisable : le dire, puis repli `Skill code-review` avec `<pr_url>`, sans
+- absent ou inutilisable : le dire, puis repli `Skill <review[0].fallback>` (`code-review`) avec `<pr_url>`, sans
   `--comment` : rien n'est publié, ses constats sont dans sa sortie (pas de `review.json`).
 
 ## 3. Retours à traiter
@@ -65,7 +65,7 @@ toutes, puis `AskUserQuestion` « Envoyer ces réponses sur la PR ? » (« Envoy
 
 ## 6. Relance et fin
 
-Un P0 ou P1 corrigé : `AskUserQuestion` « Relancer reviewing-code sur la PR ? » (« Relancer » /
+Un P0 ou P1 corrigé : `AskUserQuestion` « Relancer la review automatique sur la PR ? » (« Relancer » /
 « Passer à la recette ») ; « Relancer » → une seule nouvelle passe des étapes 2 à 5 (sans le
 contrôle de review existante). Sinon, pas de nouvelle passe.
 

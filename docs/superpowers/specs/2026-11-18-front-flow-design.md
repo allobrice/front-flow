@@ -117,10 +117,15 @@ review, URL + compte de recette. Inventaire exécuté au démarrage et à la rep
 
 ## Mapping phase → agents/skills (défauts, surchargeables)
 
-- implement : `vue-developer` (repli `web-front:vue-developer`), `typescript-pro`,
-  `writing-clean-code`, `developing-scss`
-- review : `reviewing-code` (pas de repli : signalé absent)
-- recette : `auditing-accessibility`, `auditing-performance`, `runtime-bug-reporter`
+> Révision du 2026-11-19 : les agents et skills perso ont rejoint le plugin `frontend-toolkit`,
+> déclaré en dépendance (avec `thot`) ; `web-front` ne sert plus que de repli et pour le contexte.
+
+- implement : `frontend-toolkit:vue-developer` (repli `web-front:vue-developer`),
+  `frontend-toolkit:writing-clean-code`, `frontend-toolkit:developing-typescript`,
+  `frontend-toolkit:developing-scss` (repli `web-front:developing-scss`)
+- review : `frontend-toolkit:reviewing-code` (repli `code-review`)
+- recette : `frontend-toolkit:auditing-accessibility` (repli `web-front:audit-a11y`),
+  `frontend-toolkit:auditing-performance`, `runtime-bug-reporter`
 
 Chaque phase peut aussi invoquer tout autre agent/skill de la session dont la description
 correspond au besoin.
