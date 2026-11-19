@@ -162,14 +162,14 @@ function mixedHome() {
   return home;
 }
 
-test('par défaut : available limité aux ids du mapping et à leurs replis ; unusable et missing inchangés', () => {
+test('par défaut : available et unusable limités aux ids du mapping et à leurs replis ; missing inchangé', () => {
   const home = mixedHome();
   const repo = makeRepo();
   const inv = inventory(repo, { claudeHome: home });
   const all = inventory(repo, { claudeHome: home, all: true });
   assert.deepEqual(inv.available.map((i) => i.id), ['code-review:code-review', 'web-front:vue-developer', 'writing-clean-code']);
-  assert.deepEqual(inv.unusable, all.unusable);
-  assert.deepEqual(inv.unusable.map((i) => i.id), ['zz-off']);
+  assert.deepEqual(inv.unusable, []);
+  assert.deepEqual(all.unusable.map((i) => i.id), ['zz-off']);
   assert.deepEqual(inv.missing, all.missing);
   assert.deepEqual(all.available.map((i) => i.id), ['code-review:code-review', 'web-front:other', 'web-front:vue-developer', 'writing-clean-code', 'zeta']);
 });

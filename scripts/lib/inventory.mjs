@@ -87,8 +87,8 @@ function effectiveMapping(cwd, inRepo) {
 }
 
 /**
- * `available` est limité aux ids du mapping effectif et à leurs replis, sauf avec `all` (liste
- * complète). `unusable` et `missing` ne dépendent pas de `all`.
+ * `available` et `unusable` sont limités aux ids du mapping effectif et à leurs replis, sauf avec
+ * `all` (listes complètes). `missing` ne dépend pas de `all`.
  */
 export function inventory(cwd, { claudeHome = defaultClaudeHome(), all = false } = {}) {
   const found = [...scanRoot(claudeHome, 'user', null)];
@@ -119,5 +119,5 @@ export function inventory(cwd, { claudeHome = defaultClaudeHome(), all = false }
     }
   }
   const relevant = (item) => mapping.some(({ id, fallback = null }) => item.id === id || (fallback !== null && matchesFallback(item, fallback)));
-  return { available: all ? available : available.filter(relevant), unusable, missing };
+  return all ? { available, unusable, missing } : { available: available.filter(relevant), unusable: unusable.filter(relevant), missing };
 }
