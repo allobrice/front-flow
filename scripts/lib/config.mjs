@@ -1,7 +1,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { git } from './git.mjs';
+import { mainRoot } from './git.mjs';
 
 const DEFAULTS = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'defaults', 'config.json');
 const KEY_RE = /[A-Z]{2,}-\d+/;
@@ -25,20 +25,28 @@ function readJson(file) {
   }
 }
 
-/** Défauts + `<toplevel>/.claude/front-flow.json` fusionnés en profondeur. */
+/**
+ * Défauts + `<racine>/.claude/front-flow.json` fusionnés en profondeur. `<racine>` est le checkout
+ * principal, même depuis un worktree (la config y est souvent ignorée par git, donc absente).
+ */
 export function loadConfig(cwd) {
-  let top;
+  let root;
   try {
-    top = git(cwd, 'rev-parse', '--show-toplevel');
+    root = mainRoot(cwd);
   } catch {
     throw new Error('Ce dossier n\'est pas dans un dépôt git : impossible de trouver .claude/front-flow.json.');
   }
   const defaults = readJson(DEFAULTS);
-  const file = join(top, '.claude', 'front-flow.json');
-  if (!existsSync(file)) return { config: defaults, configured: false };
+  const file = join(root, '.claude', 'front-flow.json');
+  if (!existsSync(file)) return { config: defaults, configured: false, root };
   const repoCfg = readJson(file);
   if (!isPlain(repoCfg)) throw new Error(`Fichier de config invalide ${file} : un objet JSON est attendu.`);
-  return { config: deepMerge(defaults, repoCfg), configured: true };
+  const config = deepMerge(defaults, repoCfg);
+  const { commit } = config;
+  if (!Array.isArray(commit) || !commit.length || !commit.every((a) => typeof a === 'string')) {
+    throw new Error(`Fichier de config invalide ${file} : « commit » doit être un tableau non vide de chaînes.`);
+  }
+  return { config, configured: true, root };
 }
 
 /** Clé de ticket, URL Jira et/ou URL Notion à partir d'un argument libre. */

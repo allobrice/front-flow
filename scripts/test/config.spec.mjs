@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { writeFileSync, mkdirSync, mkdtempSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { makeRepo, runFF } from './helpers.mjs';
 
 const writeCfg = (repo, text) => {
@@ -47,6 +48,31 @@ test('hors dépôt git : exit 1 en français', () => {
   const r = runFF(dir, 'config', 'get');
   assert.equal(r.code, 1);
   assert.match(r.stderr, /dépôt git/);
+});
+
+test('depuis un worktree : lit la config du checkout principal et expose sa racine', () => {
+  const repo = makeRepo();
+  writeCfg(repo, '{"verify":"scripts/verify.sh"}');
+  const wt = join(repo, '.worktrees', 'WEBFRONT-1');
+  execFileSync('git', ['worktree', 'add', '-q', '-b', 'feat/WEBFRONT-1', wt], { cwd: repo, stdio: 'pipe' });
+  const r = runFF(wt, 'config', 'get');
+  assert.equal(r.code, 0, r.stderr);
+  const out = JSON.parse(r.stdout);
+  assert.equal(out.configured, true);
+  assert.equal(out.config.verify, 'scripts/verify.sh');
+  assert.equal(out.root, repo);
+  assert.equal(JSON.parse(runFF(repo, 'config', 'get').stdout).root, repo);
+});
+
+test('commit invalide (vide, non tableau, non chaînes) : exit 1 et nom du fichier', () => {
+  for (const commit of ['[]', '"git commit"', '["git", 3]']) {
+    const repo = makeRepo();
+    writeCfg(repo, `{"commit":${commit}}`);
+    const r = runFF(repo, 'config', 'get');
+    assert.equal(r.code, 1, commit);
+    assert.match(r.stderr, /front-flow\.json/);
+    assert.match(r.stderr, /commit/);
+  }
 });
 
 const target = (arg) => runFF(makeRepo(), 'resolve-target', arg);
