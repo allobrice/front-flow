@@ -33,7 +33,9 @@ phase (`ff-*`) sont internes.
 Dans le dépôt cible : `/front-flow:setup`. La skill détecte la commande de vérification
 (`scripts/verify.sh`, sinon `lint` / `typecheck` / `test` de `package.json`) et le gabarit de
 commit (`scripts/commit.mjs` s'il existe), montre le JSON proposé et n'écrit
-`.claude/front-flow.json` qu'avec ton accord. Ce fichier est versionnable : ses commandes
+`.claude/front-flow.json` qu'avec ton accord, toujours à la racine du checkout principal (même
+lancé depuis un worktree ; `config get` en donne le chemin dans `root`). `worktreesDir` reste un
+chemin relatif, à l'intérieur du dépôt (`.worktrees` par défaut, ignoré par git). Ce fichier est versionnable : ses commandes
 (`verify`, `commit`, `recetteReadyCheck`) sont exécutées par le plugin, à relire comme du code ;
 jamais de mot de passe ni de jeton dedans.
 
@@ -47,8 +49,10 @@ jamais de mot de passe ni de jeton dedans.
 ```
 
 Au démarrage, un seul tour de questions : branche cible, worktree ou in-place, flags de review,
-URL et compte de recette. Sans argument : la clé de la branche courante, sinon l'unique feature
-en cours, sinon un choix ; aucune feature → « Aucune feature en cours : donne un ticket ».
+URL et compte de recette. La base doit exister sur origin (sinon la PR serait impossible : arrêt).
+Sans argument, jamais de nouvelle feature : la clé de la branche courante si elle a un état,
+sinon l'unique feature en cours, sinon un choix ; aucune feature → « Aucune feature en cours :
+donne un ticket ».
 
 | Phase | Ce qui se passe | Gate |
 |---|---|---|

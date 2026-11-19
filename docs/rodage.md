@@ -15,6 +15,8 @@ relever chaque friction dans la grille en fin de document. Installation : voir `
   `writing-clean-code`, `thot:thot-read`, `web-front:figma-analyzer` et
   `web-front:type-generator` disponibles ; `config get` → défauts, `configured: false` ;
   `state list` → `[]` ; `detect-base` → branche de départ.
+- Contrôle du 2026-11-19 depuis le worktree `ILokYou-Site/.worktrees/WEBFRONT-1251` :
+  `config get` → `root: "/home/allobrice/dev/ILokYou-Site"` (checkout principal), `configured: false`.
 
 ## Rodage 1 — ILokYou-Site, petit ticket WEBFRONT, de bout en bout
 
@@ -23,7 +25,8 @@ déployable.
 
 1. **Setup** : `/front-flow:setup`. Attendu : `verify: "scripts/verify.sh"`, `commit` =
    `node scripts/commit.mjs -e {emoji} -f {files} -d {desc}`, `worktreesDir: ".worktrees"` (déjà
-   ignoré par git). Ajouter l'URL de recette si elle est stable.
+   ignoré par git). Ajouter l'URL de recette si elle est stable. Lancé depuis un worktree, le
+   fichier doit être écrit dans le checkout principal (`root` de `config get`).
 2. **Démarrage** : `/front-flow:front-flow WEBFRONT-xxx`. Vérifier : un seul tour de questions
    (≤ 4), base détectée (`release/<fixVersion>` si elle existe sur origin), mode **Worktree**.
 3. **Worktree** (jamais exercé sur un vrai dépôt) : contrôler que
@@ -45,8 +48,8 @@ déployable.
 10. **recette / Gate 3** : env déployé (jamais le serveur local), attente du SHA ou confirmation
     en une ligne, rapport `recette-1.md`. « Accepté » → `phase: done`, proposition de retirer le
     worktree (`git worktree remove` sans `--force`).
-11. Variante à tester une fois : Gate 1 approuvée **en effaçant le contexte** (la dernière étape
-    du plan doit suffire à reprendre).
+11. Variante à tester une fois : Gate 1 approuvée **en effaçant le contexte** (la première étape
+    du plan, « Avant tout : … », doit suffire à reprendre sans implémenter hors orchestrateur).
 
 ## Rodage 2 — Front-Disconnected, setup différent
 
@@ -70,12 +73,8 @@ Reliquats mineurs reportés pendant l'implémentation, utiles en conditions rée
   timeout (blocage possible si l'auth git demande une saisie) ; HEAD détaché non géré ;
   `fixVersion` lu mais pas réutilisé ensuite ; options parfois en double dans la question de
   démarrage ; plus de 4 features en cours → seules 4 proposées.
-- **Worktree** : `<racine>` non défini si l'on lance depuis un worktree (worktree imbriqué) ;
-  `verify` enregistré pendant `implement` écrit `.claude/front-flow.json` dans le worktree et
-  apparaît dans le diff (ff-pr le laisse hors commit, à confirmer).
-- **État** : valeurs de `state set` pas toujours entre guillemets dans les gabarits (espaces,
-  `recette_account` purement numérique converti en nombre) ; messages git bruts (en anglais) hors
-  dépôt ; fichier `.tmp` laissé après une écriture interrompue.
+- **État** : `recette_account` purement numérique converti en nombre par `state set` ; messages
+  git bruts (en anglais) hors dépôt ; fichier `.tmp` laissé après une écriture interrompue.
 - **Inventaire** : lancé parfois deux fois ; un repli sans préfixe (`code-review`) est aussi
   satisfait par un item d'un autre type (agent `web-front:code-review`) ;
   commentaires YAML en fin de ligne dans un frontmatter mal lus ; `installed_plugins.json`
@@ -83,14 +82,13 @@ Reliquats mineurs reportés pendant l'implémentation, utiles en conditions rée
 - **Chemins** : `${CLAUDE_PLUGIN_ROOT}` des références n'est pas développé ; repérer toute
   commande `node "/scripts/ff.mjs"`.
 - **CT / thot** : consignes `spec_inexploitable`, `x-thot-gap` et code-search peu précisées.
-- **PR** : lien Jira du corps avec un hôte générique (`https://…/browse/<KEY>`) ; transition Jira
-  à la Gate 2 non nommée dans l'aperçu ; changement de base à la Gate 2 sans rebase.
+- **PR** : changement de base à la Gate 2 sans rebase.
 - **Review** : pas de pagination GraphQL (> 100 fils) ; `reply.md` réutilisé d'un fil à l'autre ;
   fils déjà répondus mais non résolus retraités ; avec « Ne pas publier », les fils humains ne
   sont pas traités ; « 3 tentatives » et limite de passes interprétables.
 - **Recette** : `wait-deploy` en mode URL sans timeout de requête ni contrôle `res.ok`, SHA vide
-  vu comme prêt ; push fait avant chaque passe ; pas de passage de main explicite pour la saisie
-  du mot de passe ; `runtime-bug-reporter` supposé toujours disponible.
+  vu comme prêt ; push fait avant chaque passe ; `runtime-bug-reporter` supposé toujours
+  disponible.
 
 ## Grille de relevé des frictions
 
