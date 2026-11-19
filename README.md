@@ -30,6 +30,10 @@ Le plugin n'embarque aucun agent ni skill perso : il appelle ceux de la session 
 /plugin install front-flow@front-flow-local
 ```
 
+Mise à jour : `/plugin` → marketplace `front-flow-local` → mettre à jour, puis le plugin.
+Claude Code ne recharge le plugin que si `version` change dans `.claude-plugin/plugin.json` :
+chaque changement mergé doit donc incrémenter cette version.
+
 Seuls `/front-flow:front-flow` et `/front-flow:setup` apparaissent dans le menu ; les skills de
 phase (`ff-*`) sont internes.
 
