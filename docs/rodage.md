@@ -31,9 +31,12 @@ déployable.
    ignoré par git). Ajouter l'URL de recette si elle est stable. Lancé depuis un worktree, le
    fichier doit être écrit dans le checkout principal (`root` de `config get`).
 2. **Démarrage** : `/front-flow:front-flow WEBFRONT-xxx`. Vérifier : un seul tour de questions
-   (≤ 4), base détectée (`release/<fixVersion>` si elle existe sur origin), mode **Worktree**.
+   (≤ 4), base détectée (`release/<fixVersion>` si elle existe sur origin), mode **Worktree**,
+   branche `feature/webfront-xxx-<3 mots du titre>` et URL de recette
+   `https://webfront-xxx-<…>.feature.allovoisins.com` proposées (config du 2026-11-19 :
+   `branch`, `recetteUrl`, `recetteReadyCheck.workflow`).
 3. **Worktree** (jamais exercé sur un vrai dépôt) : contrôler que
-   `git worktree add --no-track -b feature/<KEY> <racine>/.worktrees/<KEY> origin/<base>` réussit,
+   `git worktree add --no-track -b <branche> <racine>/.worktrees/<KEY> origin/<base>` réussit,
    que `git -C <worktree> rev-parse --abbrev-ref @{u}` échoue (pas de suivi), que `state get`
    donne le chemin absolu du worktree, et que l'état est dans `.git/front-flow/` du checkout
    principal (et non dans le worktree).
@@ -45,11 +48,13 @@ déployable.
 8. **Interruption** : après la Gate 2 (ou en cours de review), `/clear`, puis
    `/front-flow:front-flow` **sans argument** depuis le checkout principal (branche sans clé) :
    la feature doit être retrouvée par `state list`, le travail repris dans le worktree, à la bonne
-   phase, avec la relecture de la CT si elle vient de thot.
+   phase, avec la relecture de la CT si elle vient de thot. Depuis le worktree (branche en
+   minuscules), `state current` doit rendre la clé en majuscules.
 9. **review** : `frontend-toolkit:reviewing-code` appelé avec les flags, sa propre confirmation respectée ; retours
    traités, réponses inline montrées avant envoi.
-10. **recette / Gate 3** : env déployé (jamais le serveur local), attente du SHA ou confirmation
-    en une ligne, rapport `recette-1.md`. « Accepté » → `phase: done`, proposition de retirer le
+10. **recette / Gate 3** : env déployé (jamais le serveur local), attente du run
+    `deploy-features.yml` du SHA poussé (`wait-deploy` en mode `workflow`), confirmation en une
+    ligne si aucun run, rapport `recette-1.md`. « Accepté » → `phase: done`, proposition de retirer le
     worktree (`git worktree remove` sans `--force`).
 11. Variante à tester une fois : Gate 1 approuvée **en effaçant le contexte** (la première étape
     du plan, « Avant tout : … », doit suffire à reprendre sans implémenter hors orchestrateur).

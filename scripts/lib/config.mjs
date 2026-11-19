@@ -46,6 +46,13 @@ export function loadConfig(cwd) {
   if (!Array.isArray(commit) || !commit.length || !commit.every((a) => typeof a === 'string')) {
     throw new Error(`Fichier de config invalide ${file} : « commit » doit être un tableau non vide de chaînes.`);
   }
+  if (typeof config.branch !== 'string' || !/\{(KEY|key)\}/.test(config.branch)) {
+    throw new Error(`Fichier de config invalide ${file} : « branch » doit être une chaîne contenant {KEY} ou {key}.`);
+  }
+  const check = config.recetteReadyCheck;
+  if (check !== null && !(isPlain(check) && (typeof check.url === 'string' || typeof check.workflow === 'string'))) {
+    throw new Error(`Fichier de config invalide ${file} : « recetteReadyCheck » doit valoir null, { "url": … } ou { "workflow": … }.`);
+  }
   return { config, configured: true, root };
 }
 
@@ -60,7 +67,7 @@ export function resolveTarget(arg) {
     // pas une URL
   }
   if (!url) {
-    if (new RegExp(`^${KEY_RE.source}$`).test(text)) return { key: text, jiraUrl: null, notionUrl: null };
+    if (new RegExp(`^${KEY_RE.source}$`, 'i').test(text)) return { key: text.toUpperCase(), jiraUrl: null, notionUrl: null };
   } else {
     const host = url.hostname;
     if (host === 'notion.so' || host.endsWith('.notion.so') || host.endsWith('.notion.site')) {

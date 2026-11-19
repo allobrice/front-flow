@@ -7,7 +7,7 @@ import { parseFrontmatter } from '../lib/frontmatter.mjs';
 
 const SKILLS = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'skills');
 const REFS = join(SKILLS, 'ff-shared', 'references');
-const CLI_COMMANDS = ['state', 'config', 'resolve-target', 'detect-base', 'inventory', 'commit', 'wait-deploy'];
+const CLI_COMMANDS = ['state', 'config', 'resolve-target', 'names', 'detect-base', 'inventory', 'commit', 'wait-deploy'];
 const PHASE_SKILLS = ['ff-context', 'ff-plan', 'ff-implement', 'ff-pr', 'ff-review', 'ff-recette'];
 const ASCII_ACCENTS = /\b(etat|creer|deja|recupere)\b/i;
 

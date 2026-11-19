@@ -23,7 +23,7 @@ Créer le dossier annexe au besoin (`mkdir -p`). Ne jamais écrire ces fichiers 
 |---|---|
 | `key` | clé du ticket (`WEBFRONT-123`) ; posée par le script |
 | `phase` | phase courante (énumération ci-dessous) |
-| `branch` | branche de travail, `feature/<KEY>` |
+| `branch` | branche de travail, issue du gabarit `branch` de la config (`feature/<KEY>` par défaut) |
 | `base` | branche cible de la PR (`release/<fixVersion>` ou branche de départ) |
 | `worktree` | chemin absolu du worktree, `null` en mode in-place |
 | `pr_url` | URL de la PR, `null` avant la Gate 2 |

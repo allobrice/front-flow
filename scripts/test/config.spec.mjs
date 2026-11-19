@@ -106,3 +106,23 @@ test('resolve-target : n\'importe quoi → exit 1', () => {
   assert.equal(r.code, 1);
   assert.match(r.stderr, /ticket|cible/i);
 });
+
+test('resolve-target : clé en minuscules → majuscules', () => {
+  assert.equal(JSON.parse(runFF(makeRepo(), 'resolve-target', 'webfront-1404').stdout).key, 'WEBFRONT-1404');
+});
+
+test('branch et recetteReadyCheck invalides : exit 1 et nom du fichier', () => {
+  for (const cfg of [{ branch: 'feature/sans-cle' }, { branch: 3 }, { recetteReadyCheck: { foo: 1 } }, { recetteReadyCheck: 'x' }]) {
+    const repo = makeRepo();
+    writeCfg(repo, JSON.stringify(cfg));
+    const r = runFF(repo, 'config', 'get');
+    assert.equal(r.code, 1, JSON.stringify(cfg));
+    assert.match(r.stderr, /front-flow\.json/);
+  }
+});
+
+test('recetteReadyCheck workflow accepté', () => {
+  const repo = makeRepo();
+  writeCfg(repo, JSON.stringify({ recetteReadyCheck: { workflow: 'deploy-features.yml' } }));
+  assert.equal(runFF(repo, 'config', 'get').code, 0);
+});

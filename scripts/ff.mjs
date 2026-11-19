@@ -4,7 +4,9 @@ import { readState, writeState, statePath, listStates, currentKey } from './lib/
 import { detectBase } from './lib/base.mjs';
 import { inventory } from './lib/inventory.mjs';
 import { runCommit } from './lib/commit.mjs';
-import { waitDeploy } from './lib/deploy.mjs';
+import { waitDeploy, waitWorkflow } from './lib/deploy.mjs';
+import { names } from './lib/naming.mjs';
+import { git, currentBranch } from './lib/git.mjs';
 
 // Convention : succès → 0 (+ JSON sur stdout) ; absent / rien à faire → 2 ; erreur → 1.
 class Absent extends Error {}
@@ -76,6 +78,10 @@ const commands = {
     return json(loadConfig(cwd));
   },
   'resolve-target': (_cwd, [arg]) => json(resolveTarget(need(arg, 'cible'))),
+  names: (cwd, [key, ...args]) => {
+    const opts = parseOptions(args, ['title', 'branch']);
+    return json(names(loadConfig(cwd).config, resolveTarget(need(key, 'clé')).key, opts));
+  },
   'detect-base': (cwd, args) => {
     const opts = parseOptions(args, ['fix-version', 'start']);
     return `${detectBase(cwd, { fixVersion: opts['fix-version'], start: opts.start })}\n`;
@@ -95,11 +101,22 @@ const commands = {
     const timeoutSec = opts.timeout === undefined ? 900 : Number(opts.timeout);
     if (!Number.isFinite(timeoutSec) || timeoutSec < 0) throw new Error(`Option --timeout « ${opts.timeout} » invalide : un nombre de secondes est attendu.`);
     const { config } = loadConfig(cwd);
-    if (!config.recetteReadyCheck?.url) {
+    const check = config.recetteReadyCheck;
+    if (check?.workflow) {
+      const full = git(cwd, 'rev-parse', `${sha}^{commit}`);
+      const r = await waitWorkflow({ cwd, sha: full, workflow: check.workflow, branch: currentBranch(cwd), timeoutSec, intervalSec: 15 });
+      if (r.status === 'ready') return json(r);
+      if (r.status === 'not-triggered') {
+        throw absent(`Aucun run ${check.workflow} pour ${full.slice(0, 7)} (push filtré par le workflow, ex. docs seules ?) : confirme manuellement que l'environnement est à jour`);
+      }
+      if (r.status === 'failed') throw new Error(`Déploiement en échec (${r.conclusion}) : ${r.url}`);
+      throw new Error(`Déploiement non terminé après ${timeoutSec} s${r.url ? ` : ${r.url}` : ''}.`);
+    }
+    if (!check?.url) {
       throw absent("recetteReadyCheck non configuré : confirme manuellement que l'environnement est à jour");
     }
-    const status = await waitDeploy({ sha, check: config.recetteReadyCheck, timeoutSec, intervalSec: 15 });
-    if (status === 'timeout') throw new Error(`Déploiement non détecté après ${timeoutSec} s : le SHA ${sha.slice(0, 7)} n'est pas servi par ${config.recetteReadyCheck.url}.`);
+    const status = await waitDeploy({ sha, check, timeoutSec, intervalSec: 15 });
+    if (status === 'timeout') throw new Error(`Déploiement non détecté après ${timeoutSec} s : le SHA ${sha.slice(0, 7)} n'est pas servi par ${check.url}.`);
     return json({ status });
   },
   state: (cwd, [sub, ...rest]) => {
