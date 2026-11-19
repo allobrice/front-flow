@@ -19,8 +19,8 @@ Argument : `<KEY>`. État : `${CLAUDE_PLUGIN_ROOT}/skills/ff-shared/references/s
   (`AskUserQuestion`, saisie via « Autre » / « Pas maintenant »), puis
   `node "${CLAUDE_PLUGIN_ROOT}/scripts/ff.mjs" state set <KEY> 'recette_url=<url>'` ; « Pas maintenant » → arrêt.
 - Mapping `recette` effectif (`config.mapping.recette`, sinon `${CLAUDE_PLUGIN_ROOT}/defaults/mapping.json`)
-  croisé avec l'inventaire : `-a11y` dans `state.flags` → `auditing-accessibility` ; `-perf` →
-  `auditing-performance` ; `runtime-bug-reporter` toujours disponible pour diagnostiquer un échec.
+  croisé avec l'inventaire : `-a11y` dans `state.flags` → `…auditing-accessibility` ; `-perf` →
+  `…auditing-performance` ; `runtime-bug-reporter` toujours disponible pour diagnostiquer un échec.
   Élément absent : son repli s'il est disponible, sinon le citer sans bloquer.
 
 ## 2. Attente du déploiement (avant chaque passe)

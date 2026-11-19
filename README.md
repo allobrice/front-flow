@@ -11,12 +11,17 @@ Le plugin n'embarque aucun agent ni skill perso : il appelle ceux de la session 
 - Node ≥ 20 ; `git` ; `gh` authentifié (`gh auth status`).
 - MCP : Atlassian (Jira), Notion, Chrome DevTools (installé comme plugin `chrome-devtools-mcp`) ;
   Figma facultatif.
-- Plugin `thot` (lecture de la CT via `thot:thot-read`) ; plugin `web-front` facultatif
-  (`figma-analyzer`, `type-generator`, replis des agents).
-- Agents et skills perso appelés par leur nom : `vue-developer`, `writing-clean-code`,
-  `reviewing-code`. `reviewing-code` ne doit pas porter `disable-model-invocation: true` dans son
-  frontmatter (sinon front-flow ne peut pas l'appeler et se replie sur `code-review`).
-  L'inventaire (`/front-flow:setup`) signale les éléments absents ou inutilisables.
+- Dépendances déclarées dans `plugin.json` (installées avec front-flow si elles manquent) :
+  - `frontend-toolkit` (marketplace `frontend-toolkit-marketplace`,
+    https://github.com/allobrice/frontend-toolkit-plugin) : agent `vue-developer`, skills
+    `writing-clean-code`, `developing-typescript`, `developing-scss`, `reviewing-code`,
+    `auditing-accessibility`, `auditing-performance` ;
+  - `thot` (marketplace `allovoisins-cc-tools`) : lecture de la CT via `thot:thot-read`.
+- Plugin `web-front` facultatif : `figma-analyzer`, `type-generator`, et replis quand un élément
+  de `frontend-toolkit` manque. Skill perso `runtime-bug-reporter` facultative (recette).
+- L'inventaire (`/front-flow:setup`) signale les éléments absents ou inutilisables
+  (`disable-model-invocation: true`). Pour utiliser d'autres agents ou skills, surcharger
+  `mapping` dans `.claude/front-flow.json`.
 
 ## Installation (marketplace locale de rodage)
 
@@ -58,9 +63,9 @@ donne un ticket ».
 |---|---|---|
 | `context` | Jira, Notion, Figma, CT (`thot-read`) → `brief.md` | |
 | `plan` | Mode plan, plan fichier par fichier | **Gate 1** : validation du plan |
-| `implement` | Agent `vue-developer` (+ skills du mapping), puis `verify` jusqu'au vert | |
+| `implement` | Agent `frontend-toolkit:vue-developer` (+ skills du mapping), puis `verify` jusqu'au vert | |
 | `pr` | Commits logiques, aperçu titre/corps/commits | **Gate 2** : création de la PR |
-| `review` | `reviewing-code` (sa propre confirmation de publication), traitement des retours, réponses inline validées | |
+| `review` | `frontend-toolkit:reviewing-code` (sa propre confirmation de publication), traitement des retours, réponses inline validées | |
 | `recette` | Chrome DevTools MCP sur l'env déployé, rapport P0–P3, correctifs par lot | **Gate 3** : verdict de recette |
 
 ## Où vit l'état

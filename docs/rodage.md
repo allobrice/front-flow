@@ -15,6 +15,9 @@ relever chaque friction dans la grille en fin de document. Installation : voir `
   `writing-clean-code`, `thot:thot-read`, `web-front:figma-analyzer` et
   `web-front:type-generator` disponibles ; `config get` → défauts, `configured: false` ;
   `state list` → `[]` ; `detect-base` → branche de départ.
+- Inventaire du 2026-11-19 dans ILokYou-Site après passage du mapping à `frontend-toolkit` :
+  15 retenus, 0 inutilisable, 0 absent ; les 7 éléments `frontend-toolkit:*` du mapping,
+  `runtime-bug-reporter`, `thot:thot-read` et les replis `web-front:*` sont disponibles.
 - Contrôle du 2026-11-19 depuis le worktree `ILokYou-Site/.worktrees/WEBFRONT-1251` :
   `config get` → `root: "/home/allobrice/dev/ILokYou-Site"` (checkout principal), `configured: false`.
 
@@ -43,7 +46,7 @@ déployable.
    `/front-flow:front-flow` **sans argument** depuis le checkout principal (branche sans clé) :
    la feature doit être retrouvée par `state list`, le travail repris dans le worktree, à la bonne
    phase, avec la relecture de la CT si elle vient de thot.
-9. **review** : `reviewing-code` appelé avec les flags, sa propre confirmation respectée ; retours
+9. **review** : `frontend-toolkit:reviewing-code` appelé avec les flags, sa propre confirmation respectée ; retours
    traités, réponses inline montrées avant envoi.
 10. **recette / Gate 3** : env déployé (jamais le serveur local), attente du SHA ou confirmation
     en une ligne, rapport `recette-1.md`. « Accepté » → `phase: done`, proposition de retirer le

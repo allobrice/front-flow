@@ -1,11 +1,17 @@
 {
   "name": "front-flow-local",
-  "owner": { "name": "Brice" },
+  "owner": {
+    "name": "Brice"
+  },
   "plugins": [
     {
       "name": "front-flow",
       "source": "./",
       "description": "Déroule une feature front AlloVoisins de bout en bout : contexte et CT, plan, implémentation, PR, review, recette."
     }
+  ],
+  "allowCrossMarketplaceDependenciesOn": [
+    "frontend-toolkit-marketplace",
+    "allovoisins-cc-tools"
   ]
 }

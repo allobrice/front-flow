@@ -1,16 +1,16 @@
 {
   "implement": [
-    { "id": "vue-developer", "kind": "agent", "fallback": "web-front:vue-developer" },
-    { "id": "typescript-pro", "kind": "agent", "fallback": "web-front:typescript-pro" },
-    { "id": "writing-clean-code", "kind": "skill", "fallback": null },
-    { "id": "developing-scss", "kind": "skill", "fallback": "web-front:developing-scss" }
+    { "id": "frontend-toolkit:vue-developer", "kind": "agent", "fallback": "web-front:vue-developer" },
+    { "id": "frontend-toolkit:writing-clean-code", "kind": "skill", "fallback": null },
+    { "id": "frontend-toolkit:developing-typescript", "kind": "skill", "fallback": null },
+    { "id": "frontend-toolkit:developing-scss", "kind": "skill", "fallback": "web-front:developing-scss" }
   ],
   "review": [
-    { "id": "reviewing-code", "kind": "skill", "fallback": "code-review" }
+    { "id": "frontend-toolkit:reviewing-code", "kind": "skill", "fallback": "code-review" }
   ],
   "recette": [
-    { "id": "auditing-accessibility", "kind": "skill", "fallback": "web-front:audit-a11y" },
-    { "id": "auditing-performance", "kind": "skill", "fallback": null },
+    { "id": "frontend-toolkit:auditing-accessibility", "kind": "skill", "fallback": "web-front:audit-a11y" },
+    { "id": "frontend-toolkit:auditing-performance", "kind": "skill", "fallback": null },
     { "id": "runtime-bug-reporter", "kind": "skill", "fallback": null }
   ],
   "context": [
