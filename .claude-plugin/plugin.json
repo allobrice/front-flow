@@ -1,6 +1,6 @@
 {
   "name": "front-flow",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Déroule une feature front AlloVoisins de bout en bout : contexte et CT, plan, implémentation, PR, review, recette.",
   "author": {
     "name": "Brice Le Gallo-Tastet"
